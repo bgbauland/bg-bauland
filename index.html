@@ -6,6 +6,20 @@
   <title>BG Bauland – Erd- &amp; Tiefbau, Abbruch, Pflaster- und Grundstücksarbeiten</title>
   <meta name="description" content="BG Bauland bietet Erd- und Tiefbau, Abbrucharbeiten, Pflasterarbeiten sowie Außenanlagen und Grundstücksarbeiten in Hockenheim und Umgebung.">
   <meta name="theme-color" content="#11110f">
+  <script>
+    (function () {
+      var root = document.documentElement;
+      try {
+        root.classList.add(sessionStorage.getItem('bgBaulandPreloaderShown') === 'true' ? 'preloader-seen' : 'preloader-pending');
+      } catch (error) {
+        root.classList.add('preloader-pending');
+      }
+      window.__bgBaulandPreloaderFailsafe = setTimeout(function () {
+        root.classList.remove('preloader-pending');
+        root.classList.add('preloader-failed');
+      }, 3200);
+    }());
+  </script>
   <link rel="icon" href="./assets/images/bg-logo.png?v=2" type="image/png">
   <link rel="canonical" href="https://bgbauland.github.io/bg-bauland/">
   <meta property="og:type" content="website">
@@ -18,7 +32,7 @@
   <link rel="preload" as="image" href="./assets/images/hero-bg-bauland.webp" fetchpriority="high">
   <link rel="preload" href="./assets/fonts/inter-latin.woff2?v=1" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="./assets/fonts/roboto-condensed-latin.woff2?v=1" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="./styles.css?v=17">
+  <link rel="stylesheet" href="./styles.css?v=18">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -37,9 +51,33 @@
     "areaServed": "Hockenheim und Umgebung"
   }
   </script>
-  <script src="./app.js?v=9" defer></script>
+  <script src="./app.js?v=10" defer></script>
 </head>
 <body>
+  <div class="site-preloader" data-preloader role="region" aria-label="BG Bauland wird vorbereitet" aria-busy="true">
+    <div class="site-preloader__content">
+      <svg class="site-preloader__animation" viewBox="0 0 520 310" aria-hidden="true" focusable="false">
+        <g class="site-preloader__crane">
+          <path class="site-preloader__crane-line" d="M72 238V48M52 238h64M72 58h344M72 94h265M96 58l-24 36M117 94L72 58M114 238L72 198M72 157l42 41M72 116l42 41" />
+          <path class="site-preloader__counterweight" d="M378 48h42v20h-42z" />
+          <g class="site-preloader__hoist">
+            <path class="site-preloader__cable" d="M318 58v92" />
+            <path class="site-preloader__hook" d="M309 148v13c0 18 24 18 24 0" />
+            <rect class="site-preloader__beam" x="277" y="172" width="82" height="12" rx="2" />
+          </g>
+        </g>
+        <image class="site-preloader__logo" href="./assets/images/bg-logo.png?v=2" x="137" y="132" width="246" height="142" preserveAspectRatio="xMidYMid meet" />
+        <path class="site-preloader__ground" d="M42 274h436" />
+      </svg>
+
+      <p class="site-preloader__label">Website wird vorbereitet</p>
+      <div class="site-preloader__progress" role="progressbar" aria-label="Ladefortschritt" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <span class="site-preloader__bar"></span>
+      </div>
+      <span class="site-preloader__percentage" aria-hidden="true">0 %</span>
+    </div>
+  </div>
+
   <a class="skip-link" href="#main-content">Zum Inhalt springen</a>
 
   <header class="site-header" data-header>

@@ -5,6 +5,143 @@
   const menuButton = document.querySelector('.menu-toggle');
   const nav = document.querySelector('#site-nav');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const preloaderKey = 'bgBaulandPreloaderShown';
+  const framePathFor = (index) => `./assets/frames/transformation/frame_${String(index + 1).padStart(4, '0')}.webp`;
+  const frameBlobCache = new Map();
+  const frameBlobRequests = new Map();
+  const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+  const getFrameBlob = (index) => {
+    if (frameBlobCache.has(index)) return Promise.resolve(frameBlobCache.get(index));
+    if (frameBlobRequests.has(index)) return frameBlobRequests.get(index);
+    const request = fetch(framePathFor(index), { cache: 'force-cache' })
+      .then((response) => {
+        if (!response.ok) throw new Error(`Frame ${index + 1} konnte nicht geladen werden.`);
+        return response.blob();
+      })
+      .then((blob) => {
+        frameBlobCache.set(index, blob);
+        frameBlobRequests.delete(index);
+        return blob;
+      })
+      .catch((error) => {
+        frameBlobRequests.delete(index);
+        throw error;
+      });
+    frameBlobRequests.set(index, request);
+    return request;
+  };
+
+  const initPreloader = () => {
+    const preloader = document.querySelector('[data-preloader]');
+    const root = document.documentElement;
+    if (!preloader) {
+      root.classList.remove('preloader-pending');
+      return;
+    }
+    if (root.classList.contains('preloader-seen')) {
+      clearTimeout(window.__bgBaulandPreloaderFailsafe);
+      preloader.remove();
+      return;
+    }
+
+    try { sessionStorage.setItem(preloaderKey, 'true'); } catch { /* Session storage may be unavailable. */ }
+
+    const progress = preloader.querySelector('[role="progressbar"]');
+    const progressBar = preloader.querySelector('.site-preloader__bar');
+    const percentage = preloader.querySelector('.site-preloader__percentage');
+    const startedAt = performance.now();
+    const minimumDuration = 500;
+    const maximumWorkDuration = reduceMotion ? 900 : 1900;
+    let completedWeight = 0;
+    const totalWeight = 14;
+    let targetProgress = 0;
+    let displayedProgress = 0;
+    let progressRaf = 0;
+    let finished = false;
+    let lastAnnouncedProgress = -1;
+
+    const paintProgress = (value) => {
+      const rounded = Math.max(0, Math.min(100, Math.round(value)));
+      progressBar?.style.setProperty('--preloader-progress', String(rounded / 100));
+      if (percentage) percentage.textContent = `${rounded} %`;
+      if (rounded === 100 || lastAnnouncedProgress < 0 || rounded - lastAnnouncedProgress >= 5) {
+        lastAnnouncedProgress = rounded;
+        progress?.setAttribute('aria-valuenow', String(rounded));
+      }
+    };
+    const animateProgress = () => {
+      const difference = targetProgress - displayedProgress;
+      displayedProgress += Math.abs(difference) < 0.4 ? difference : Math.max(0.35, difference * 0.12);
+      paintProgress(displayedProgress);
+      if (Math.abs(targetProgress - displayedProgress) > 0.05) progressRaf = requestAnimationFrame(animateProgress);
+      else progressRaf = 0;
+    };
+    const setTargetProgress = (value) => {
+      targetProgress = Math.max(targetProgress, Math.min(100, value));
+      if (!progressRaf) progressRaf = requestAnimationFrame(animateProgress);
+    };
+    const markComplete = (weight) => {
+      completedWeight += weight;
+      setTargetProgress(Math.min(92, (completedWeight / totalWeight) * 92));
+    };
+    const track = (promise, weight) => Promise.resolve(promise).finally(() => markComplete(weight));
+    const loadImage = (source) => new Promise((resolve, reject) => {
+      const image = new Image();
+      image.decoding = 'async';
+      image.onload = resolve;
+      image.onerror = reject;
+      image.src = source;
+      if (image.complete && image.naturalWidth) resolve();
+    });
+    const fetchAsset = (source) => fetch(source, { cache: 'force-cache' }).then((response) => {
+      if (!response.ok) throw new Error(`${source} konnte nicht geladen werden.`);
+      return response.blob();
+    });
+    const loadPriorityFrames = async () => {
+      const queue = [0, 1, 2, 3, 4, 5, 10, 20];
+      const workers = Array.from({ length: 3 }, async () => {
+        while (queue.length) {
+          const index = queue.shift();
+          await track(getFrameBlob(index).catch(() => null), 1);
+        }
+      });
+      await Promise.all(workers);
+    };
+
+    const essentialWork = Promise.allSettled([
+      track(loadImage('./assets/images/hero-bg-bauland.webp'), 3),
+      track(loadImage('./assets/images/bg-logo.png?v=2'), 1),
+      track(fetchAsset('./assets/fonts/inter-latin.woff2?v=1'), 1),
+      track(fetchAsset('./assets/fonts/roboto-condensed-latin.woff2?v=1'), 1),
+      loadPriorityFrames()
+    ]);
+
+    const finish = async () => {
+      if (finished) return;
+      finished = true;
+      const remainingMinimum = minimumDuration - (performance.now() - startedAt);
+      if (remainingMinimum > 0) await wait(remainingMinimum);
+      if (progressRaf) cancelAnimationFrame(progressRaf);
+      targetProgress = 100;
+      displayedProgress = 100;
+      paintProgress(100);
+      preloader.setAttribute('aria-busy', 'false');
+      preloader.classList.add('is-ready');
+      await wait(reduceMotion ? 80 : 140);
+      clearTimeout(window.__bgBaulandPreloaderFailsafe);
+      root.classList.add('preloader-revealing');
+      preloader.classList.add('is-closing');
+      requestAnimationFrame(() => root.classList.remove('preloader-pending'));
+      await wait(reduceMotion ? 140 : 620);
+      preloader.remove();
+      root.classList.remove('preloader-revealing');
+      root.classList.add('preloader-complete');
+    };
+
+    Promise.race([essentialWork, wait(maximumWorkDuration)]).then(finish, finish);
+  };
+
+  initPreloader();
 
   if (document.body.classList.contains('service-page') && nav && !nav.querySelector('.nav-home-link')) {
     const homeLink = document.createElement('a');
@@ -206,7 +343,7 @@
   const stageName = cinematic.querySelector('.stage-label strong');
   const stages = ['Ausgangszustand','Abbruch','Vorbereitung','Bewehrung','Fertigwände','Trockenbau','Pflasterarbeiten','Fertiges Ergebnis'];
 
-  const pathFor = (index) => `./assets/frames/transformation/frame_${String(index + 1).padStart(4, '0')}.webp`;
+  const pathFor = framePathFor;
   const drawCover = (image) => {
     const sourceWidth = image.naturalWidth || image.width;
     const sourceHeight = image.naturalHeight || image.height;
@@ -319,9 +456,7 @@
   const loadFrame = async (index) => {
     if (mobileFrameMode) {
       try {
-        const response = await fetch(pathFor(index), { cache: 'force-cache' });
-        if (!response.ok) return;
-        frameSources[index] = await response.blob();
+        frameSources[index] = await getFrameBlob(index);
         loadedCount += 1;
         updateProgress();
         if (index === 0 || Math.abs(index - pendingFrame) < 3) requestMobileDecode();
