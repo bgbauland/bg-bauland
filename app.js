@@ -370,8 +370,11 @@
   };
   const resize = () => {
     const pixelRatio = window.matchMedia('(max-width: 900px)').matches ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
-    canvas.width = Math.round(window.innerWidth * pixelRatio);
-    canvas.height = Math.round(window.innerHeight * pixelRatio);
+    const nextWidth = Math.round((canvas.clientWidth || window.innerWidth) * pixelRatio);
+    const nextHeight = Math.round((canvas.clientHeight || window.innerHeight) * pixelRatio);
+    if (canvas.width === nextWidth && canvas.height === nextHeight) return;
+    canvas.width = nextWidth;
+    canvas.height = nextHeight;
     currentFrame = -1;
     requestRender(pendingFrame);
     requestCinematicUpdate();
