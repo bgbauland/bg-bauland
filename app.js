@@ -78,7 +78,7 @@
 
   const cinematic = document.querySelector('[data-cinematic]');
   const canvas = cinematic?.querySelector('canvas');
-  if (!cinematic || !canvas || reduceMotion || window.matchMedia('(max-width: 900px)').matches) return;
+  if (!cinematic || !canvas || reduceMotion) return;
 
   const context = canvas.getContext('2d', { alpha: false });
   const frameCount = 100;
