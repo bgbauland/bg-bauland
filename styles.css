@@ -359,6 +359,25 @@ body.menu-open{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;ove
 
 @supports(scrollbar-gutter:stable){html{scrollbar-gutter:stable}}
 
+/* Viewport-complete service sections and visual workflow cards. */
+.service-intro,.service-scope,.why-service{min-height:100dvh;padding-block:clamp(66px,8dvh,96px);display:flex;flex-direction:column;justify-content:center}
+.service-intro>.shell,.service-scope>.shell,.why-service>.shell{width:var(--shell)}
+.service-cta{min-height:100dvh}
+.process-list li{position:relative;isolation:isolate;overflow:hidden;background:#171714;color:#fff}
+.process-list li::after{content:"";position:absolute;z-index:1;inset:0;background:linear-gradient(180deg,rgba(10,10,9,.16) 0%,rgba(10,10,9,.24) 38%,rgba(10,10,9,.94) 100%);pointer-events:none}
+.process-image{position:absolute;z-index:0;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(.78) contrast(1.04);transition:transform .7s ease,filter .7s ease}
+.process-list>li>span,.process-list>li>div{position:relative;z-index:2}
+.process-list p{color:rgba(255,255,255,.76)}
+@media(max-width:900px){
+  .service-intro,.service-scope,.why-service{min-height:100dvh;padding:76px 0 32px}
+  .service-cta{min-height:100dvh}
+}
+@media(max-width:600px){
+  .service-intro,.service-scope,.why-service{min-height:100dvh;padding:76px 0 32px}
+  .service-cta{min-height:100dvh}
+}
+@media(hover:hover){.process-list li:hover .process-image{transform:scale(1.035);filter:saturate(.95) contrast(1.04)}}
+
 /* Accessible service navigation in the header. */
 .nav-services{position:relative}
 .nav-services-toggle{position:relative;display:inline-flex;align-items:center;gap:.65em;padding:8px 0;border:0;background:transparent;color:inherit;cursor:pointer;font:inherit;text-transform:inherit;letter-spacing:inherit}
