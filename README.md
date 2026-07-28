@@ -24,6 +24,8 @@ Repository: https://github.com/bgbauland/bg-bauland
 ├── datenschutz.html
 ├── styles.css
 ├── app.js
+├── PERFORMANCE.md
+├── scripts/validate-site.mjs
 ├── robots.txt
 ├── sitemap.xml
 ├── .nojekyll
@@ -32,9 +34,6 @@ Repository: https://github.com/bgbauland/bg-bauland
     ├── images
     │   ├── hero-bg-bauland.webp
     │   ├── construction-anchor.webp
-    │   ├── demolition.webp
-    │   ├── drywall.webp
-    │   ├── paving.webp
     │   ├── reinforcement.webp
     │   ├── around-house.webp
     │   ├── contact-project.webp
@@ -55,7 +54,7 @@ Danach `http://localhost:8000` öffnen. Die Website sollte nicht direkt über da
 
 ## Veröffentlichung mit GitHub Pages
 
-Der Workflow `.github/workflows/deploy.yml` veröffentlicht bei jedem Push auf `main` den Repository-Inhalt. In den Repository-Einstellungen muss unter **Pages** als Quelle **GitHub Actions** gewählt sein. Die Zieladresse lautet `https://bgbauland.github.io/bg-bauland/`.
+Der Workflow `.github/workflows/deploy.yml` validiert zunächst lokale Referenzen, UTF-8, die 100 Frames und die Asset-Budgets. Anschließend veröffentlicht er bei jedem Push auf `main` den Repository-Inhalt. In den Repository-Einstellungen muss unter **Pages** als Quelle **GitHub Actions** gewählt sein. Die Zieladresse lautet `https://bgbauland.github.io/bg-bauland/`.
 
 ## Firmendaten ändern
 
@@ -98,8 +97,15 @@ Noch zu ergänzen sind insbesondere:
 
 - Hero-Bild wird priorisiert geladen.
 - Bilder unterhalb des sichtbaren Bereichs verwenden Lazy Loading.
-- Die Canvas-Frames werden mit vier begrenzten parallelen Downloads gestaffelt vorgeladen.
-- Der mobile Videoclip lädt zunächst nur Metadaten.
+- Der Preloader blockiert nur auf Hero, Logo, Fonts und sechs frühe Frames.
+- Strategische Frames werden in Abschnittsnähe geladen; der Rest folgt mit begrenzter Parallelität in Leerlaufphasen.
+- Decodierte Frames und Blobs verwenden getrennte, geräteabhängige Cache-Grenzen.
+- Der versteckte Videoclip wird erst bei tatsächlicher Verwendung angefordert.
 - Bei `prefers-reduced-motion: reduce` wird ein statisches Schlüsselbild gezeigt.
 - Sämtliche Assets sind lokal eingebunden; es gibt keine externen Fonts oder JavaScript-Abhängigkeiten.
 
+Messwerte, Qualitätsvergleich und Testmatrix stehen in [`PERFORMANCE.md`](./PERFORMANCE.md). Vor einem Commit kann die gleiche Prüfung wie im Pages-Workflow lokal ausgeführt werden:
+
+```bash
+node scripts/validate-site.mjs
+```
