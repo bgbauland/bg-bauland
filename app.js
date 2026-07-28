@@ -34,10 +34,35 @@
   };
 
   const closeMenu = (restoreFocus = false) => setMenuState(false, restoreFocus);
+  const serviceNav = document.querySelector('[data-service-nav]');
+  const serviceToggle = serviceNav?.querySelector('.nav-services-toggle');
+  const setServiceMenuState = (open) => {
+    serviceNav?.classList.toggle('is-open', open);
+    serviceToggle?.setAttribute('aria-expanded', String(open));
+  };
+  const closeServiceMenu = () => setServiceMenuState(false);
+
   menuButton?.addEventListener('click', () => setMenuState(!document.body.classList.contains('menu-open')));
-  nav?.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => closeMenu(false)));
-  document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeMenu(true); });
-  window.matchMedia('(min-width: 901px)').addEventListener('change', (event) => { if (event.matches) closeMenu(false); });
+  serviceToggle?.addEventListener('click', (event) => {
+    event.stopPropagation();
+    setServiceMenuState(!serviceNav.classList.contains('is-open'));
+  });
+  nav?.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => {
+    closeServiceMenu();
+    closeMenu(false);
+  }));
+  document.addEventListener('pointerdown', (event) => {
+    if (serviceNav && !serviceNav.contains(event.target)) closeServiceMenu();
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+    closeServiceMenu();
+    closeMenu(true);
+  });
+  window.matchMedia('(min-width: 901px)').addEventListener('change', (event) => {
+    closeServiceMenu();
+    if (event.matches) closeMenu(false);
+  });
 
   document.querySelectorAll('[data-year]').forEach((node) => { node.textContent = String(new Date().getFullYear()); });
 
@@ -224,5 +249,20 @@
   window.addEventListener('resize', resize, { passive: true });
   window.addEventListener('scroll', handleScroll, { passive: true });
   handleScroll();
-  preload();
+  let preloadStarted = false;
+  const beginPreload = () => {
+    if (preloadStarted) return;
+    preloadStarted = true;
+    preload();
+  };
+  if ('IntersectionObserver' in window) {
+    const preloadObserver = new IntersectionObserver((entries, instance) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      instance.disconnect();
+      beginPreload();
+    }, { threshold: 0, rootMargin: '0px 0px -35% 0px' });
+    preloadObserver.observe(cinematic);
+  } else {
+    beginPreload();
+  }
 })();

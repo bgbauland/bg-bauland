@@ -18,7 +18,7 @@
   <link rel="preload" as="image" href="./assets/images/hero-bg-bauland.webp" fetchpriority="high">
   <link rel="preload" href="./assets/fonts/inter-latin.woff2?v=1" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="./assets/fonts/roboto-condensed-latin.woff2?v=1" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="./styles.css?v=10">
+  <link rel="stylesheet" href="./styles.css?v=11">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -37,7 +37,7 @@
     "areaServed": "Hockenheim und Umgebung"
   }
   </script>
-  <script src="./app.js?v=4" defer></script>
+  <script src="./app.js?v=5" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Zum Inhalt springen</a>
@@ -52,7 +52,15 @@
       <span></span><span></span>
     </button>
     <nav id="site-nav" class="site-nav" aria-label="Hauptnavigation">
-      <a href="#leistungen">Leistungen</a>
+      <div class="nav-services" data-service-nav>
+        <button class="nav-services-toggle" type="button" aria-expanded="false" aria-controls="service-menu">Leistungen <span class="nav-chevron" aria-hidden="true"></span></button>
+        <div class="nav-services-menu" id="service-menu">
+          <a href="./erd-tiefbau/">Erd- &amp; Tiefbau</a>
+          <a href="./abbrucharbeiten/">Abbrucharbeiten</a>
+          <a href="./pflasterarbeiten/">Pflasterarbeiten</a>
+          <a href="./aussenanlagen/">Außenanlagen &amp; Grundstücksarbeiten</a>
+        </div>
+      </div>
       <a href="#erfahrung">Erfahrung</a>
       <a href="#arbeitsweise">Arbeitsweise</a>
       <a class="nav-cta" href="#kontakt">Projekt anfragen <span class="arrow-icon arrow-up" aria-hidden="true"></span></a>
@@ -121,9 +129,10 @@
 
     <section class="project-strip" aria-label="Ausgewählte Leistungsbereiche">
       <div class="shell project-grid">
-        <figure class="project-image project-image-tall reveal"><img src="./assets/images/construction-anchor.webp" width="1920" height="1080" loading="lazy" alt="Vorbereitete Baufläche für Erd- und Tiefbauarbeiten"><figcaption><span>Erd- &amp; Tiefbau</span><strong>Tragfähige Grundlagen</strong></figcaption></figure>
-        <figure class="project-image reveal"><img src="./assets/images/demolition.webp" width="1920" height="1080" loading="lazy" alt="Kontrollierter Innenabbruch in einem Gebäude"><figcaption><span>Abbruch</span><strong>Sauberer Rückbau</strong></figcaption></figure>
-        <figure class="project-image reveal"><img src="./assets/images/paving.webp" width="1920" height="1080" loading="lazy" alt="Präzise verlegte Pflasterfläche"><figcaption><span>Pflaster &amp; Außenanlagen</span><strong>Exakte Flächen</strong></figcaption></figure>
+        <figure class="project-image reveal"><img src="./assets/images/service-erd-tiefbau.webp" width="1376" height="768" loading="lazy" decoding="async" fetchpriority="low" alt="Baugrube mit Bagger bei präzisen Erd- und Tiefbauarbeiten"><figcaption><span>Erd- &amp; Tiefbau</span><strong>Tragfähige Grundlagen</strong></figcaption></figure>
+        <figure class="project-image reveal"><img src="./assets/images/service-abbrucharbeiten.webp" width="1376" height="768" loading="lazy" decoding="async" fetchpriority="low" alt="Kontrollierter Rückbau in einem Gebäude"><figcaption><span>Abbrucharbeiten</span><strong>Sauberer Rückbau</strong></figcaption></figure>
+        <figure class="project-image reveal"><img src="./assets/images/service-pflasterarbeiten.webp" width="1376" height="768" loading="lazy" decoding="async" fetchpriority="low" alt="Präzise vorbereitete und verlegte Pflasterfläche"><figcaption><span>Pflasterarbeiten</span><strong>Exakte Flächen</strong></figcaption></figure>
+        <figure class="project-image reveal"><img src="./assets/images/service-aussenanlagen.webp" width="1376" height="768" loading="lazy" decoding="async" fetchpriority="low" alt="Modern gestaltete Außenanlage mit Wegen und Grünfläche"><figcaption><span>Außenanlagen</span><strong>Geordnete Grundstücke</strong></figcaption></figure>
       </div>
       <p class="image-disclaimer shell">Visualisierte Leistungsbereiche · keine Darstellung konkreter Kundenprojekte</p>
     </section>
