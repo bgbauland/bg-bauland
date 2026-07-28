@@ -192,7 +192,7 @@
     }
 
     menuButton?.setAttribute('aria-expanded', String(open));
-    menuButton?.querySelector('.sr-only')?.replaceChildren(open ? 'Navigation schlieÃŸen' : 'Navigation Ã¶ffnen');
+    menuButton?.querySelector('.sr-only')?.replaceChildren(open ? 'Navigation schließen' : 'Navigation öffnen');
   };
 
   const closeMenu = (restoreFocus = false) => setMenuState(false, restoreFocus);
@@ -299,8 +299,8 @@
     let valid = true;
     Object.values(fields).forEach((field) => {
       let message = '';
-      if (!field.value.trim()) message = 'Bitte fÃ¼llen Sie dieses Feld aus.';
-      if (field.type === 'email' && field.value && !field.validity.valid) message = 'Bitte geben Sie eine gÃ¼ltige E-Mail-Adresse ein.';
+      if (!field.value.trim()) message = 'Bitte füllen Sie dieses Feld aus.';
+      if (field.type === 'email' && field.value && !field.validity.valid) message = 'Bitte geben Sie eine gültige E-Mail-Adresse ein.';
       field.setAttribute('aria-invalid', String(Boolean(message)));
       const error = document.querySelector(`#${field.id}-error`);
       if (error) error.textContent = message;
@@ -310,15 +310,15 @@
       form.querySelector('[aria-invalid="true"]')?.focus();
       return;
     }
-    const subject = `Projektanfrage â€“ ${form.elements.service.value}`;
+    const subject = `Projektanfrage – ${form.elements.service.value}`;
     const body = [
       'Guten Tag BG Bauland,', '',
       `mein Name ist ${form.elements.name.value.trim()}.`,
       `E-Mail: ${form.elements.email.value.trim()}`,
       `Telefon: ${form.elements.phone.value.trim() || 'nicht angegeben'}`,
-      `GewÃ¼nschte Leistung: ${form.elements.service.value}`, '',
+      `Gewünschte Leistung: ${form.elements.service.value}`, '',
       'Projektbeschreibung:', form.elements.message.value.trim(), '',
-      'Freundliche GrÃ¼ÃŸe', form.elements.name.value.trim()
+      'Freundliche Grüße', form.elements.name.value.trim()
     ].join('\n');
     window.location.href = `mailto:info@bg-bauland.de?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   });
@@ -347,7 +347,7 @@
   const progressText = loader?.querySelector('.loader-percent');
   const stageNumber = cinematic.querySelector('.stage-label span');
   const stageName = cinematic.querySelector('.stage-label strong');
-  const stages = ['Ausgangszustand','Abbruch','Vorbereitung','Bewehrung','FertigwÃ¤nde','Trockenbau','Pflasterarbeiten','Fertiges Ergebnis'];
+  const stages = ['Ausgangszustand','Abbruch','Vorbereitung','Bewehrung','Fertigwände','Trockenbau','Pflasterarbeiten','Fertiges Ergebnis'];
 
   const pathFor = framePathFor;
   const drawCover = (image) => {
