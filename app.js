@@ -166,7 +166,24 @@
 
   const cinematic = document.querySelector('[data-cinematic]');
   const canvas = cinematic?.querySelector('canvas');
+  const cinematicVideo = cinematic?.querySelector('.cinematic-video');
   if (!cinematic || !canvas || reduceMotion) return;
+
+  if (window.matchMedia('(max-width: 900px)').matches && cinematicVideo) {
+    const setMobileVideoState = (visible) => {
+      if (visible) cinematicVideo.play().catch(() => {});
+      else cinematicVideo.pause();
+    };
+    if ('IntersectionObserver' in window) {
+      const videoObserver = new IntersectionObserver((entries) => {
+        setMobileVideoState(entries.some((entry) => entry.isIntersecting));
+      }, { threshold: 0.08 });
+      videoObserver.observe(cinematic);
+    } else {
+      setMobileVideoState(true);
+    }
+    return;
+  }
 
   const context = canvas.getContext('2d', { alpha: false });
   const frameCount = 100;
