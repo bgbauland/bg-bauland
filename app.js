@@ -14,9 +14,20 @@
     nav.prepend(homeLink);
   }
 
-  const updateHeader = () => header?.classList.toggle('is-scrolled', window.scrollY > 24);
+  let headerScrolled;
+  let headerRaf = 0;
+  const updateHeader = () => {
+    headerRaf = 0;
+    const nextState = window.scrollY > 24;
+    if (nextState === headerScrolled) return;
+    headerScrolled = nextState;
+    header?.classList.toggle('is-scrolled', nextState);
+  };
+  const requestHeaderUpdate = () => {
+    if (!headerRaf) headerRaf = requestAnimationFrame(updateHeader);
+  };
   updateHeader();
-  window.addEventListener('scroll', updateHeader, { passive: true });
+  window.addEventListener('scroll', requestHeaderUpdate, { passive: true });
 
   let menuScrollY = 0;
   const setMenuState = (open, restoreFocus = false) => {
@@ -98,10 +109,15 @@
       instance.disconnect();
       const duration = 1250;
       const startedAt = performance.now();
+      let lastValue = -1;
       const tick = (now) => {
         const progress = Math.min(1, (now - startedAt) / duration);
         const eased = 1 - Math.pow(1 - progress, 3);
-        counterValue.textContent = String(Math.round(target * eased));
+        const value = Math.round(target * eased);
+        if (value !== lastValue) {
+          lastValue = value;
+          counterValue.textContent = String(value);
+        }
         if (progress < 1) requestAnimationFrame(tick);
       };
       requestAnimationFrame(tick);
@@ -166,32 +182,23 @@
 
   const cinematic = document.querySelector('[data-cinematic]');
   const canvas = cinematic?.querySelector('canvas');
-  const cinematicVideo = cinematic?.querySelector('.cinematic-video');
   if (!cinematic || !canvas || reduceMotion) return;
-
-  if (window.matchMedia('(max-width: 900px)').matches && cinematicVideo) {
-    const setMobileVideoState = (visible) => {
-      if (visible) cinematicVideo.play().catch(() => {});
-      else cinematicVideo.pause();
-    };
-    if ('IntersectionObserver' in window) {
-      const videoObserver = new IntersectionObserver((entries) => {
-        setMobileVideoState(entries.some((entry) => entry.isIntersecting));
-      }, { threshold: 0.08 });
-      videoObserver.observe(cinematic);
-    } else {
-      setMobileVideoState(true);
-    }
-    return;
-  }
 
   const context = canvas.getContext('2d', { alpha: false });
   const frameCount = 100;
+  const mobileFrameMode = window.matchMedia('(max-width: 900px)').matches;
   const frames = new Array(frameCount);
+  const frameSources = mobileFrameMode ? new Array(frameCount) : null;
+  const frameAccess = mobileFrameMode ? new Array(frameCount).fill(0) : null;
   let loadedCount = 0;
   let currentFrame = -1;
   let pendingFrame = 0;
   let rafId = 0;
+  let decodeBusy = false;
+  let decodeGeneration = 0;
+  const reportDecodedFrameCount = () => {
+    if (mobileFrameMode) cinematic.dataset.decodedFrames = String(frames.filter(Boolean).length);
+  };
   const loader = cinematic.querySelector('.frame-loader');
   const progressBar = loader?.querySelector('.loader-track i');
   const progressText = loader?.querySelector('.loader-percent');
@@ -201,28 +208,106 @@
 
   const pathFor = (index) => `./assets/frames/transformation/frame_${String(index + 1).padStart(4, '0')}.webp`;
   const drawCover = (image) => {
-    const ratio = Math.max(canvas.width / image.naturalWidth, canvas.height / image.naturalHeight);
-    const width = image.naturalWidth * ratio;
-    const height = image.naturalHeight * ratio;
+    const sourceWidth = image.naturalWidth || image.width;
+    const sourceHeight = image.naturalHeight || image.height;
+    const ratio = Math.max(canvas.width / sourceWidth, canvas.height / sourceHeight);
+    const width = sourceWidth * ratio;
+    const height = sourceHeight * ratio;
     context.drawImage(image, (canvas.width - width) / 2, (canvas.height - height) / 2, width, height);
   };
   const findNearest = (target) => {
     for (let distance = 0; distance < frameCount; distance += 1) {
       const before = target - distance;
       const after = target + distance;
-      if (before >= 0 && frames[before]?.complete) return frames[before];
-      if (after < frameCount && frames[after]?.complete) return frames[after];
+      if (before >= 0 && frames[before]) return { image: frames[before], index: before };
+      if (after < frameCount && frames[after]) return { image: frames[after], index: after };
     }
     return null;
   };
+  const releaseFrame = (index) => {
+    const image = frames[index];
+    if (!image) return;
+    if (typeof image.close === 'function') image.close();
+    else if ('src' in image) image.src = '';
+    frames[index] = null;
+    if (currentFrame === index) currentFrame = -1;
+  };
+  const pruneMobileFrames = (aggressive = false) => {
+    if (!mobileFrameMode) return;
+    const limit = aggressive ? 1 : 8;
+    const decoded = frames.map((image, index) => image ? index : -1).filter((index) => index >= 0);
+    decoded
+      .sort((a, b) => {
+        const distance = Math.abs(b - pendingFrame) - Math.abs(a - pendingFrame);
+        return distance || frameAccess[a] - frameAccess[b];
+      })
+      .slice(0, Math.max(0, decoded.length - limit))
+      .forEach(releaseFrame);
+    reportDecodedFrameCount();
+  };
+  const decodeFrame = async (index) => {
+    if (!mobileFrameMode || frames[index] || !frameSources[index]) return frames[index];
+    const blob = frameSources[index];
+    let image;
+    if ('createImageBitmap' in window) {
+      image = await createImageBitmap(blob);
+    } else {
+      image = await new Promise((resolve, reject) => {
+        const objectUrl = URL.createObjectURL(blob);
+        const fallbackImage = new Image();
+        fallbackImage.decoding = 'async';
+        fallbackImage.onload = () => {
+          URL.revokeObjectURL(objectUrl);
+          resolve(fallbackImage);
+        };
+        fallbackImage.onerror = () => {
+          URL.revokeObjectURL(objectUrl);
+          reject(new Error('Frame konnte nicht decodiert werden.'));
+        };
+        fallbackImage.src = objectUrl;
+      });
+    }
+    frames[index] = image;
+    frameAccess[index] = performance.now();
+    reportDecodedFrameCount();
+    return image;
+  };
+  const runMobileDecodeQueue = async () => {
+    if (!mobileFrameMode || decodeBusy) return;
+    decodeBusy = true;
+    while (true) {
+      const generation = decodeGeneration;
+      const target = pendingFrame;
+      const candidates = [target, target - 1, target + 1, target - 2, target + 2]
+        .filter((index) => index >= 0 && index < frameCount);
+      for (const index of candidates) {
+        if (generation !== decodeGeneration) break;
+        try { await decodeFrame(index); } catch { /* The nearest available frame remains visible. */ }
+      }
+      pruneMobileFrames(false);
+      requestRender(pendingFrame, false);
+      if (generation === decodeGeneration) break;
+    }
+    decodeBusy = false;
+  };
+  const requestMobileDecode = () => {
+    if (!mobileFrameMode) return;
+    decodeGeneration += 1;
+    runMobileDecodeQueue();
+  };
   const render = () => {
     rafId = 0;
-    if (pendingFrame === currentFrame) return;
-    const image = findNearest(pendingFrame);
-    if (image) { drawCover(image); currentFrame = pendingFrame; }
+    if (pendingFrame === currentFrame && frames[pendingFrame]) return;
+    const nearest = findNearest(pendingFrame);
+    if (nearest) {
+      drawCover(nearest.image);
+      currentFrame = nearest.index;
+      if (mobileFrameMode) frameAccess[nearest.index] = performance.now();
+    }
   };
-  const requestRender = (index) => {
+  const requestRender = (index, requestDecode = true) => {
     pendingFrame = Math.max(0, Math.min(frameCount - 1, index));
+    if (mobileFrameMode && requestDecode) requestMobileDecode();
     if (!rafId) rafId = requestAnimationFrame(render);
   };
   const updateProgress = () => {
@@ -231,24 +316,37 @@
     if (progressText) progressText.textContent = `${percentage}%`;
     if (loadedCount === frameCount) loader?.classList.add('is-complete');
   };
-  const loadFrame = (index) => new Promise((resolve) => {
-    const image = new Image();
-    image.decoding = 'async';
-    image.onload = () => {
-      frames[index] = image;
-      loadedCount += 1;
-      updateProgress();
-      if (index === 0 || Math.abs(index - pendingFrame) < 3) requestRender(pendingFrame);
-      resolve();
-    };
-    image.onerror = resolve;
-    image.src = pathFor(index);
-  });
+  const loadFrame = async (index) => {
+    if (mobileFrameMode) {
+      try {
+        const response = await fetch(pathFor(index), { cache: 'force-cache' });
+        if (!response.ok) return;
+        frameSources[index] = await response.blob();
+        loadedCount += 1;
+        updateProgress();
+        if (index === 0 || Math.abs(index - pendingFrame) < 3) requestMobileDecode();
+      } catch { /* A nearby loaded frame is used when one request fails. */ }
+      return;
+    }
+    await new Promise((resolve) => {
+      const image = new Image();
+      image.decoding = 'async';
+      image.onload = () => {
+        frames[index] = image;
+        loadedCount += 1;
+        updateProgress();
+        if (index === 0 || Math.abs(index - pendingFrame) < 3) requestRender(pendingFrame);
+        resolve();
+      };
+      image.onerror = resolve;
+      image.src = pathFor(index);
+    });
+  };
   const preload = async () => {
     const priority = [0,1,2,3,4,5,10,15,20,30,40,50,60,70,80,90,99];
     const remaining = Array.from({ length: frameCount }, (_, index) => index).filter((index) => !priority.includes(index));
     const queue = [...priority, ...remaining];
-    const workers = Array.from({ length: 4 }, async () => {
+    const workers = Array.from({ length: mobileFrameMode ? 3 : 4 }, async () => {
       while (queue.length) await loadFrame(queue.shift());
     });
     await Promise.all(workers);
@@ -290,6 +388,7 @@
   if ('IntersectionObserver' in window) {
     const activityObserver = new IntersectionObserver((entries) => {
       cinematicActive = entries.some((entry) => entry.isIntersecting);
+      if (!cinematicActive) pruneMobileFrames(true);
       requestCinematicUpdate();
     });
     activityObserver.observe(cinematic);

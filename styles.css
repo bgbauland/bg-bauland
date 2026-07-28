@@ -391,12 +391,15 @@ body.menu-open{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;ove
   .project-image figcaption strong{font-size:.58rem}
 }
 
-/* iOS-safe form controls and lightweight mobile construction sequence. */
+/* iOS-safe form controls and memory-managed mobile frame sequence. */
 @media(max-width:900px){
   .field input,.field select,.field textarea{font-size:16px}
-  .cinematic{height:auto;touch-action:pan-y}
-  .cinematic-sticky{position:relative;height:100svh;min-height:650px}
-  .cinematic-canvas{display:none}
-  .cinematic-video{display:block;pointer-events:none}
-  .frame-loader,.stage-label{display:none}
+  .cinematic{height:450vh;touch-action:pan-y}
+  .cinematic-sticky{position:sticky;top:0;height:100dvh;min-height:0}
+  .cinematic-canvas{display:block}
+  .cinematic-video,.cinematic-poster{display:none}
+  .frame-loader{display:grid}
+  .stage-label{display:flex}
 }
+
+@media(max-width:600px){.cinematic{height:420vh}}
