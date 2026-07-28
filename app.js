@@ -55,6 +55,47 @@
     document.querySelectorAll('.reveal').forEach((node) => node.classList.add('is-visible'));
   }
 
+  const counter = document.querySelector('[data-counter]');
+  const counterValue = counter?.querySelector('[data-counter-value]');
+  if (counter && counterValue && !reduceMotion && 'IntersectionObserver' in window) {
+    const target = Number(counter.dataset.counterTarget) || 20;
+    counterValue.textContent = '0';
+    const counterObserver = new IntersectionObserver((entries, instance) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      instance.disconnect();
+      const duration = 1250;
+      const startedAt = performance.now();
+      const tick = (now) => {
+        const progress = Math.min(1, (now - startedAt) / duration);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        counterValue.textContent = String(Math.round(target * eased));
+        if (progress < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }, { threshold: 0.45 });
+    counterObserver.observe(counter);
+  }
+
+  const experienceImage = document.querySelector('.experience > img');
+  const experienceSection = document.querySelector('.experience');
+  if (experienceImage && experienceSection && !reduceMotion && window.matchMedia('(min-width: 901px)').matches) {
+    let parallaxRaf = 0;
+    const updateParallax = () => {
+      parallaxRaf = 0;
+      const rect = experienceSection.getBoundingClientRect();
+      if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+      const sectionCenter = rect.top + rect.height / 2;
+      const viewportCenter = window.innerHeight / 2;
+      const offset = Math.max(-20, Math.min(20, (sectionCenter - viewportCenter) * -.04));
+      experienceImage.style.setProperty('--parallax-y', `${offset}px`);
+    };
+    const requestParallax = () => {
+      if (!parallaxRaf) parallaxRaf = requestAnimationFrame(updateParallax);
+    };
+    window.addEventListener('scroll', requestParallax, { passive: true });
+    updateParallax();
+  }
+
   const form = document.querySelector('[data-contact-form]');
   form?.addEventListener('submit', (event) => {
     event.preventDefault();
