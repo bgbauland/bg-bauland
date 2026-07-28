@@ -13,19 +13,20 @@
   const getFrameBlob = (index) => {
     if (frameBlobCache.has(index)) return Promise.resolve(frameBlobCache.get(index));
     if (frameBlobRequests.has(index)) return frameBlobRequests.get(index);
-    const request = fetch(framePathFor(index), { cache: 'force-cache' })
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000);
+    const request = fetch(framePathFor(index), { cache: 'force-cache', signal: controller.signal })
       .then((response) => {
         if (!response.ok) throw new Error(`Frame ${index + 1} konnte nicht geladen werden.`);
         return response.blob();
       })
       .then((blob) => {
         frameBlobCache.set(index, blob);
-        frameBlobRequests.delete(index);
         return blob;
       })
-      .catch((error) => {
+      .finally(() => {
+        clearTimeout(timeout);
         frameBlobRequests.delete(index);
-        throw error;
       });
     frameBlobRequests.set(index, request);
     return request;
@@ -44,16 +45,13 @@
       return;
     }
 
-    try { sessionStorage.setItem(preloaderKey, 'true'); } catch { /* Session storage may be unavailable. */ }
-
     const progress = preloader.querySelector('[role="progressbar"]');
     const progressBar = preloader.querySelector('.site-preloader__bar');
     const percentage = preloader.querySelector('.site-preloader__percentage');
     const startedAt = performance.now();
     const minimumDuration = 500;
-    const maximumWorkDuration = reduceMotion ? 900 : 1900;
     let completedWeight = 0;
-    const totalWeight = 14;
+    const totalWeight = 106;
     let targetProgress = 0;
     let displayedProgress = 0;
     let progressRaf = 0;
@@ -82,7 +80,7 @@
     };
     const markComplete = (weight) => {
       completedWeight += weight;
-      setTargetProgress(Math.min(92, (completedWeight / totalWeight) * 92));
+      setTargetProgress(Math.min(99, (completedWeight / totalWeight) * 100));
     };
     const track = (promise, weight) => Promise.resolve(promise).finally(() => markComplete(weight));
     const loadImage = (source) => new Promise((resolve, reject) => {
@@ -97,12 +95,19 @@
       if (!response.ok) throw new Error(`${source} konnte nicht geladen werden.`);
       return response.blob();
     });
-    const loadPriorityFrames = async () => {
-      const queue = [0, 1, 2, 3, 4, 5, 10, 20];
-      const workers = Array.from({ length: 3 }, async () => {
+    const loadAllFrames = async () => {
+      const priority = [0, 1, 2, 3, 4, 5, 10, 20];
+      const prioritySet = new Set(priority);
+      const queue = [...priority, ...Array.from({ length: 100 }, (_, index) => index).filter((index) => !prioritySet.has(index))];
+      const workerCount = window.matchMedia('(max-width: 700px)').matches ? 4 : 6;
+      const workers = Array.from({ length: workerCount }, async () => {
         while (queue.length) {
           const index = queue.shift();
-          await track(getFrameBlob(index).catch(() => null), 1);
+          const loadFrame = getFrameBlob(index).catch(async () => {
+            await wait(250);
+            return getFrameBlob(index).catch(() => null);
+          });
+          await track(loadFrame, 1);
         }
       });
       await Promise.all(workers);
@@ -113,7 +118,7 @@
       track(loadImage('./assets/images/bg-logo.png?v=2'), 1),
       track(fetchAsset('./assets/fonts/inter-latin.woff2?v=1'), 1),
       track(fetchAsset('./assets/fonts/roboto-condensed-latin.woff2?v=1'), 1),
-      loadPriorityFrames()
+      loadAllFrames()
     ]);
 
     const finish = async () => {
@@ -125,6 +130,7 @@
       targetProgress = 100;
       displayedProgress = 100;
       paintProgress(100);
+      try { sessionStorage.setItem(preloaderKey, 'true'); } catch { /* Session storage may be unavailable. */ }
       preloader.setAttribute('aria-busy', 'false');
       preloader.classList.add('is-ready');
       await wait(reduceMotion ? 80 : 140);
@@ -138,7 +144,7 @@
       root.classList.add('preloader-complete');
     };
 
-    Promise.race([essentialWork, wait(maximumWorkDuration)]).then(finish, finish);
+    essentialWork.then(finish, finish);
   };
 
   initPreloader();
@@ -186,7 +192,7 @@
     }
 
     menuButton?.setAttribute('aria-expanded', String(open));
-    menuButton?.querySelector('.sr-only')?.replaceChildren(open ? 'Navigation schließen' : 'Navigation öffnen');
+    menuButton?.querySelector('.sr-only')?.replaceChildren(open ? 'Navigation schlieÃŸen' : 'Navigation Ã¶ffnen');
   };
 
   const closeMenu = (restoreFocus = false) => setMenuState(false, restoreFocus);
@@ -293,8 +299,8 @@
     let valid = true;
     Object.values(fields).forEach((field) => {
       let message = '';
-      if (!field.value.trim()) message = 'Bitte füllen Sie dieses Feld aus.';
-      if (field.type === 'email' && field.value && !field.validity.valid) message = 'Bitte geben Sie eine gültige E-Mail-Adresse ein.';
+      if (!field.value.trim()) message = 'Bitte fÃ¼llen Sie dieses Feld aus.';
+      if (field.type === 'email' && field.value && !field.validity.valid) message = 'Bitte geben Sie eine gÃ¼ltige E-Mail-Adresse ein.';
       field.setAttribute('aria-invalid', String(Boolean(message)));
       const error = document.querySelector(`#${field.id}-error`);
       if (error) error.textContent = message;
@@ -304,15 +310,15 @@
       form.querySelector('[aria-invalid="true"]')?.focus();
       return;
     }
-    const subject = `Projektanfrage – ${form.elements.service.value}`;
+    const subject = `Projektanfrage â€“ ${form.elements.service.value}`;
     const body = [
       'Guten Tag BG Bauland,', '',
       `mein Name ist ${form.elements.name.value.trim()}.`,
       `E-Mail: ${form.elements.email.value.trim()}`,
       `Telefon: ${form.elements.phone.value.trim() || 'nicht angegeben'}`,
-      `Gewünschte Leistung: ${form.elements.service.value}`, '',
+      `GewÃ¼nschte Leistung: ${form.elements.service.value}`, '',
       'Projektbeschreibung:', form.elements.message.value.trim(), '',
-      'Freundliche Grüße', form.elements.name.value.trim()
+      'Freundliche GrÃ¼ÃŸe', form.elements.name.value.trim()
     ].join('\n');
     window.location.href = `mailto:info@bg-bauland.de?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   });
@@ -341,7 +347,7 @@
   const progressText = loader?.querySelector('.loader-percent');
   const stageNumber = cinematic.querySelector('.stage-label span');
   const stageName = cinematic.querySelector('.stage-label strong');
-  const stages = ['Ausgangszustand','Abbruch','Vorbereitung','Bewehrung','Fertigwände','Trockenbau','Pflasterarbeiten','Fertiges Ergebnis'];
+  const stages = ['Ausgangszustand','Abbruch','Vorbereitung','Bewehrung','FertigwÃ¤nde','Trockenbau','Pflasterarbeiten','Fertiges Ergebnis'];
 
   const pathFor = framePathFor;
   const drawCover = (image) => {
@@ -540,3 +546,4 @@
     beginPreload();
   }
 })();
+
