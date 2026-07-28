@@ -126,6 +126,6 @@ body.menu-open{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;ove
 .service-card:nth-child(2){--reveal-delay:.06s}.service-card:nth-child(3){--reveal-delay:.12s}.service-card:nth-child(4){--reveal-delay:.18s}.service-card:nth-child(5){--reveal-delay:.24s}.service-card:nth-child(6){--reveal-delay:.3s}.service-card:nth-child(7){--reveal-delay:.36s}
 .project-image img{transform:scale(1.035)}.project-image.is-visible img{transform:scale(1)}.project-image.is-visible:hover img{transform:scale(1.025)}
 .experience>img{transform:translate3d(0,var(--parallax-y,0px),0) scale(1.055);will-change:transform}
-.big-stat strong{display:inline-flex;align-items:baseline;min-width:1.34em;font-variant-numeric:tabular-nums}
+.big-stat strong{display:inline-flex;align-items:baseline;min-width:1.34em;font-variant-numeric:tabular-nums}.big-stat strong span{font-size:inherit;letter-spacing:inherit;text-transform:none}
 @media(max-width:600px){.service-card.reveal{transition-delay:0s}.experience>img{transform:scale(1.03);will-change:auto}}
 @media(prefers-reduced-motion:reduce){.service-card.reveal{transition-delay:0s}.project-image img,.project-image.is-visible img,.project-image.is-visible:hover img,.experience>img{transform:none!important;will-change:auto}}
