@@ -6,6 +6,14 @@
   const nav = document.querySelector('#site-nav');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  if (document.body.classList.contains('service-page') && nav && !nav.querySelector('.nav-home-link')) {
+    const homeLink = document.createElement('a');
+    homeLink.className = 'nav-home-link';
+    homeLink.href = '../index.html#top';
+    homeLink.textContent = 'Startseite';
+    nav.prepend(homeLink);
+  }
+
   const updateHeader = () => header?.classList.toggle('is-scrolled', window.scrollY > 24);
   updateHeader();
   window.addEventListener('scroll', updateHeader, { passive: true });
@@ -228,7 +236,11 @@
     });
     await Promise.all(workers);
   };
-  const handleScroll = () => {
+  let cinematicActive = false;
+  let scrollRafId = 0;
+  const updateCinematic = () => {
+    scrollRafId = 0;
+    if (!cinematicActive) return;
     const rect = cinematic.getBoundingClientRect();
     const distance = cinematic.offsetHeight - window.innerHeight;
     const progress = Math.max(0, Math.min(1, -rect.top / distance));
@@ -238,17 +250,20 @@
     if (stageNumber) stageNumber.textContent = String(stage + 1).padStart(2, '0');
     if (stageName) stageName.textContent = stages[stage];
   };
+  const requestCinematicUpdate = () => {
+    if (cinematicActive && !scrollRafId) scrollRafId = requestAnimationFrame(updateCinematic);
+  };
   const resize = () => {
-    const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+    const pixelRatio = window.matchMedia('(max-width: 900px)').matches ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
     canvas.width = Math.round(window.innerWidth * pixelRatio);
     canvas.height = Math.round(window.innerHeight * pixelRatio);
     currentFrame = -1;
     requestRender(pendingFrame);
+    requestCinematicUpdate();
   };
   resize();
   window.addEventListener('resize', resize, { passive: true });
-  window.addEventListener('scroll', handleScroll, { passive: true });
-  handleScroll();
+  window.addEventListener('scroll', requestCinematicUpdate, { passive: true });
   let preloadStarted = false;
   const beginPreload = () => {
     if (preloadStarted) return;
@@ -256,6 +271,11 @@
     preload();
   };
   if ('IntersectionObserver' in window) {
+    const activityObserver = new IntersectionObserver((entries) => {
+      cinematicActive = entries.some((entry) => entry.isIntersecting);
+      requestCinematicUpdate();
+    });
+    activityObserver.observe(cinematic);
     const preloadObserver = new IntersectionObserver((entries, instance) => {
       if (!entries.some((entry) => entry.isIntersecting)) return;
       instance.disconnect();
