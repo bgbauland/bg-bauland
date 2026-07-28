@@ -378,6 +378,43 @@ body.menu-open{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;ove
 }
 @media(hover:hover){.process-list li:hover .process-image{transform:scale(1.035);filter:saturate(.95) contrast(1.04)}}
 
+/* Compact, readable service-detail layout for phones. */
+@media(max-width:600px){
+  .service-hero-content{padding:88px 0 46px}
+  .service-back{margin-bottom:16px}
+  .service-hero-content .eyebrow{margin-bottom:14px;font-size:.58rem;letter-spacing:.17em}
+  .service-hero h1{margin-bottom:18px;font-size:clamp(2.5rem,11.5vw,3.25rem);line-height:.93}
+  .service-hero h1.service-hero-title-long{font-size:clamp(2.05rem,9vw,2.65rem);line-height:.96}
+  .service-hero .hero-lead{font-size:.88rem;line-height:1.52}
+  .service-hero-actions{gap:10px;margin-top:24px}
+  .service-hero-actions .button{min-height:50px;padding:13px 16px}
+  .service-hero-actions .text-link{font-size:.7rem}
+
+  .service-intro,.service-scope,.why-service{padding:68px 0 24px}
+  .service-intro-grid{gap:18px}
+  .service-intro .eyebrow,.service-scope .eyebrow,.why-service .eyebrow{margin-bottom:14px;font-size:.58rem;letter-spacing:.17em}
+  .service-intro h2,.service-scope h2,.why-service h2{font-size:clamp(2.15rem,9.5vw,2.7rem);line-height:.94}
+  .service-copy>p{margin-bottom:14px;font-size:.9rem;line-height:1.55}
+  .service-copy>p:first-child{font-size:1rem;line-height:1.55}
+  .service-keyfacts{margin-top:24px}
+  .service-keyfacts>div:nth-child(odd),.service-keyfacts>div:nth-child(even){padding:13px 0}
+  .service-keyfacts small{margin-bottom:4px;font-size:.54rem}
+  .service-keyfacts strong{display:block;font-size:1.04rem;line-height:1.2}
+
+  .service-scope-head,.why-service-head{gap:8px;margin-bottom:12px}
+  .service-scope-head>p,.why-service-head>p{margin:0;font-size:.84rem;line-height:1.48}
+  .scope-item,.scope-item:last-child{min-height:112px;padding:14px 4px}
+  .scope-item h3{margin:12px 0 5px;font-size:1.18rem;line-height:1.04}
+  .scope-item p{font-size:.76rem;line-height:1.42}
+  .benefit-item,.benefit-item:last-child{min-height:88px;padding:15px 4px}
+  .benefit-item h3{font-size:1.16rem;line-height:1.06}
+
+  .service-cta-content{padding:72px 0 36px}
+  .service-cta h2{margin-bottom:18px;font-size:clamp(2.25rem,10vw,2.9rem);line-height:.94}
+  .service-cta p{font-size:.9rem;line-height:1.55}
+  .service-cta-actions{gap:10px;margin-top:26px}
+}
+
 /* Accessible service navigation in the header. */
 .nav-services{position:relative}
 .nav-services-toggle{position:relative;display:inline-flex;align-items:center;gap:.65em;padding:8px 0;border:0;background:transparent;color:inherit;cursor:pointer;font:inherit;text-transform:inherit;letter-spacing:inherit}
