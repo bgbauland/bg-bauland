@@ -6,28 +6,52 @@
   const nav = document.querySelector('#site-nav');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const preloaderKey = 'bgBaulandPreloaderShown';
+  const compactFrameMode = window.matchMedia('(max-width: 900px)').matches;
   const framePathFor = (index) => `./assets/frames/transformation/frame_${String(index + 1).padStart(4, '0')}.webp`;
   const frameBlobCache = new Map();
   const frameBlobRequests = new Map();
+  const frameNetworkReady = new Set();
+  const frameFailures = new Set();
+  const frameBlobCacheLimit = compactFrameMode ? 12 : 28;
   const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+  const rememberFrameBlob = (index, blob) => {
+    frameBlobCache.delete(index);
+    frameBlobCache.set(index, blob);
+    while (frameBlobCache.size > frameBlobCacheLimit) {
+      frameBlobCache.delete(frameBlobCache.keys().next().value);
+    }
+    return blob;
+  };
   const getFrameBlob = (index) => {
-    if (frameBlobCache.has(index)) return Promise.resolve(frameBlobCache.get(index));
+    if (frameBlobCache.has(index)) {
+      const blob = frameBlobCache.get(index);
+      return Promise.resolve(rememberFrameBlob(index, blob));
+    }
     if (frameBlobRequests.has(index)) return frameBlobRequests.get(index);
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 20000);
-    const request = fetch(framePathFor(index), { cache: 'force-cache', signal: controller.signal })
-      .then((response) => {
-        if (!response.ok) throw new Error(`Frame ${index + 1} konnte nicht geladen werden.`);
-        return response.blob();
-      })
-      .then((blob) => {
-        frameBlobCache.set(index, blob);
-        return blob;
-      })
-      .finally(() => {
-        clearTimeout(timeout);
-        frameBlobRequests.delete(index);
-      });
+
+    const request = (async () => {
+      let lastError;
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 12000);
+        try {
+          const response = await fetch(framePathFor(index), { cache: 'force-cache', signal: controller.signal });
+          if (!response.ok) throw new Error(`Frame ${index + 1} konnte nicht geladen werden.`);
+          const blob = await response.blob();
+          frameFailures.delete(index);
+          frameNetworkReady.add(index);
+          return rememberFrameBlob(index, blob);
+        } catch (error) {
+          lastError = error;
+          if (attempt === 0) await wait(250);
+        } finally {
+          clearTimeout(timeout);
+        }
+      }
+      frameFailures.add(index);
+      throw lastError;
+    })().finally(() => frameBlobRequests.delete(index));
+
     frameBlobRequests.set(index, request);
     return request;
   };
@@ -37,12 +61,12 @@
     const root = document.documentElement;
     if (!preloader) {
       root.classList.remove('preloader-pending');
-      return;
+      return Promise.resolve();
     }
     if (root.classList.contains('preloader-seen')) {
       clearTimeout(window.__bgBaulandPreloaderFailsafe);
       preloader.remove();
-      return;
+      return Promise.resolve();
     }
 
     const progress = preloader.querySelector('[role="progressbar"]');
@@ -50,8 +74,10 @@
     const percentage = preloader.querySelector('.site-preloader__percentage');
     const startedAt = performance.now();
     const minimumDuration = 500;
+    const maximumDuration = reduceMotion ? 2500 : 5000;
+    const criticalFrames = [0, 1, 2, 3, 4, 8];
     let completedWeight = 0;
-    const totalWeight = 106;
+    const totalWeight = 12;
     let targetProgress = 0;
     let displayedProgress = 0;
     let progressRaf = 0;
@@ -79,6 +105,7 @@
       if (!progressRaf) progressRaf = requestAnimationFrame(animateProgress);
     };
     const markComplete = (weight) => {
+      if (finished) return;
       completedWeight += weight;
       setTargetProgress(Math.min(99, (completedWeight / totalWeight) * 100));
     };
@@ -95,30 +122,12 @@
       if (!response.ok) throw new Error(`${source} konnte nicht geladen werden.`);
       return response.blob();
     });
-    const loadAllFrames = async () => {
-      const priority = [0, 1, 2, 3, 4, 5, 10, 20];
-      const prioritySet = new Set(priority);
-      const queue = [...priority, ...Array.from({ length: 100 }, (_, index) => index).filter((index) => !prioritySet.has(index))];
-      const workerCount = window.matchMedia('(max-width: 700px)').matches ? 4 : 6;
-      const workers = Array.from({ length: workerCount }, async () => {
-        while (queue.length) {
-          const index = queue.shift();
-          const loadFrame = getFrameBlob(index).catch(async () => {
-            await wait(250);
-            return getFrameBlob(index).catch(() => null);
-          });
-          await track(loadFrame, 1);
-        }
-      });
-      await Promise.all(workers);
-    };
-
-    const essentialWork = Promise.allSettled([
+    const criticalWork = Promise.allSettled([
       track(loadImage('./assets/images/hero-bg-bauland.webp'), 3),
       track(loadImage('./assets/images/bg-logo.png?v=2'), 1),
       track(fetchAsset('./assets/fonts/inter-latin.woff2?v=1'), 1),
       track(fetchAsset('./assets/fonts/roboto-condensed-latin.woff2?v=1'), 1),
-      loadAllFrames()
+      ...criticalFrames.map((index) => track(getFrameBlob(index), 1))
     ]);
 
     const finish = async () => {
@@ -144,10 +153,10 @@
       root.classList.add('preloader-complete');
     };
 
-    essentialWork.then(finish, finish);
+    return Promise.race([criticalWork, wait(maximumDuration)]).then(finish, finish);
   };
 
-  initPreloader();
+  const preloaderDone = initPreloader();
 
   if (document.body.classList.contains('service-page') && nav && !nav.querySelector('.nav-home-link')) {
     const homeLink = document.createElement('a');
@@ -329,18 +338,19 @@
 
   const context = canvas.getContext('2d', { alpha: false });
   const frameCount = 100;
-  const mobileFrameMode = window.matchMedia('(max-width: 900px)').matches;
+  const mobileFrameMode = compactFrameMode;
+  const decodedFrameLimit = mobileFrameMode ? 8 : 28;
   const frames = new Array(frameCount);
-  const frameSources = mobileFrameMode ? new Array(frameCount) : null;
-  const frameAccess = mobileFrameMode ? new Array(frameCount).fill(0) : null;
-  let loadedCount = 0;
+  const frameAccess = new Array(frameCount).fill(0);
+  const decodeRequests = new Map();
   let currentFrame = -1;
   let pendingFrame = 0;
   let rafId = 0;
   let decodeBusy = false;
   let decodeGeneration = 0;
+  let decodeRequestedFrame = -1;
   const reportDecodedFrameCount = () => {
-    if (mobileFrameMode) cinematic.dataset.decodedFrames = String(frames.filter(Boolean).length);
+    cinematic.dataset.decodedFrames = String(frames.filter(Boolean).length);
   };
   const loader = cinematic.querySelector('.frame-loader');
   const progressBar = loader?.querySelector('.loader-track i');
@@ -349,7 +359,6 @@
   const stageName = cinematic.querySelector('.stage-label strong');
   const stages = ['Ausgangszustand','Abbruch','Vorbereitung','Bewehrung','Fertigwände','Trockenbau','Pflasterarbeiten','Fertiges Ergebnis'];
 
-  const pathFor = framePathFor;
   const drawCover = (image) => {
     const sourceWidth = image.naturalWidth || image.width;
     const sourceHeight = image.naturalHeight || image.height;
@@ -375,9 +384,8 @@
     frames[index] = null;
     if (currentFrame === index) currentFrame = -1;
   };
-  const pruneMobileFrames = (aggressive = false) => {
-    if (!mobileFrameMode) return;
-    const limit = aggressive ? 1 : 8;
+  const pruneDecodedFrames = (aggressive = false) => {
+    const limit = aggressive ? (mobileFrameMode ? 1 : 8) : decodedFrameLimit;
     const decoded = frames.map((image, index) => image ? index : -1).filter((index) => index >= 0);
     decoded
       .sort((a, b) => {
@@ -389,54 +397,76 @@
     reportDecodedFrameCount();
   };
   const decodeFrame = async (index) => {
-    if (!mobileFrameMode || frames[index] || !frameSources[index]) return frames[index];
-    const blob = frameSources[index];
-    let image;
-    if ('createImageBitmap' in window) {
-      image = await createImageBitmap(blob);
-    } else {
-      image = await new Promise((resolve, reject) => {
-        const objectUrl = URL.createObjectURL(blob);
-        const fallbackImage = new Image();
-        fallbackImage.decoding = 'async';
-        fallbackImage.onload = () => {
-          URL.revokeObjectURL(objectUrl);
-          resolve(fallbackImage);
-        };
-        fallbackImage.onerror = () => {
-          URL.revokeObjectURL(objectUrl);
-          reject(new Error('Frame konnte nicht decodiert werden.'));
-        };
-        fallbackImage.src = objectUrl;
-      });
+    if (frames[index]) {
+      frameAccess[index] = performance.now();
+      return frames[index];
     }
-    frames[index] = image;
-    frameAccess[index] = performance.now();
-    reportDecodedFrameCount();
-    return image;
+    if (decodeRequests.has(index)) return decodeRequests.get(index);
+
+    const request = (async () => {
+      const blob = await getFrameBlob(index);
+      let image;
+      if ('createImageBitmap' in window) {
+        image = await createImageBitmap(blob);
+      } else {
+        image = await new Promise((resolve, reject) => {
+          const objectUrl = URL.createObjectURL(blob);
+          const fallbackImage = new Image();
+          fallbackImage.decoding = 'async';
+          fallbackImage.onload = () => {
+            URL.revokeObjectURL(objectUrl);
+            resolve(fallbackImage);
+          };
+          fallbackImage.onerror = () => {
+            URL.revokeObjectURL(objectUrl);
+            reject(new Error('Frame konnte nicht decodiert werden.'));
+          };
+          fallbackImage.src = objectUrl;
+        });
+      }
+      frames[index] = image;
+      frameAccess[index] = performance.now();
+      if (frames.filter(Boolean).length > decodedFrameLimit) pruneDecodedFrames(false);
+      else reportDecodedFrameCount();
+      updateProgress();
+      return image;
+    })().finally(() => decodeRequests.delete(index));
+
+    decodeRequests.set(index, request);
+    return request;
   };
-  const runMobileDecodeQueue = async () => {
-    if (!mobileFrameMode || decodeBusy) return;
+  const runDecodeQueue = async () => {
+    if (decodeBusy) return;
     decodeBusy = true;
     while (true) {
       const generation = decodeGeneration;
       const target = pendingFrame;
-      const candidates = [target, target - 1, target + 1, target - 2, target + 2]
+      const radius = mobileFrameMode ? 2 : 4;
+      const candidates = Array.from({ length: radius * 2 + 1 }, (_, offset) => {
+        if (offset === 0) return target;
+        const distance = Math.ceil(offset / 2);
+        return target + (offset % 2 ? -distance : distance);
+      })
         .filter((index) => index >= 0 && index < frameCount);
       for (const index of candidates) {
         if (generation !== decodeGeneration) break;
-        try { await decodeFrame(index); } catch { /* The nearest available frame remains visible. */ }
+        try {
+          await decodeFrame(index);
+          if (index === target) requestRender(target, false);
+        } catch { /* The nearest available frame remains visible. */ }
       }
-      pruneMobileFrames(false);
+      pruneDecodedFrames(false);
       requestRender(pendingFrame, false);
       if (generation === decodeGeneration) break;
     }
     decodeBusy = false;
+    decodeRequestedFrame = -1;
   };
-  const requestMobileDecode = () => {
-    if (!mobileFrameMode) return;
+  const requestFrameDecode = () => {
+    if (decodeBusy && decodeRequestedFrame === pendingFrame) return;
+    decodeRequestedFrame = pendingFrame;
     decodeGeneration += 1;
-    runMobileDecodeQueue();
+    runDecodeQueue();
   };
   const render = () => {
     rafId = 0;
@@ -445,52 +475,75 @@
     if (nearest) {
       drawCover(nearest.image);
       currentFrame = nearest.index;
-      if (mobileFrameMode) frameAccess[nearest.index] = performance.now();
+      frameAccess[nearest.index] = performance.now();
+      cinematic.dataset.currentFrame = String(nearest.index + 1);
     }
   };
   const requestRender = (index, requestDecode = true) => {
     pendingFrame = Math.max(0, Math.min(frameCount - 1, index));
-    if (mobileFrameMode && requestDecode) requestMobileDecode();
+    if (requestDecode) requestFrameDecode();
     if (!rafId) rafId = requestAnimationFrame(render);
   };
   const updateProgress = () => {
-    const percentage = Math.round((loadedCount / frameCount) * 100);
+    const completed = new Set([...frameNetworkReady, ...frameFailures]).size;
+    const percentage = Math.round((completed / frameCount) * 100);
     if (progressBar) progressBar.style.width = `${percentage}%`;
     if (progressText) progressText.textContent = `${percentage}%`;
-    if (loadedCount === frameCount) loader?.classList.add('is-complete');
+    if (completed === frameCount) loader?.classList.add('is-complete');
   };
-  const loadFrame = async (index) => {
-    if (mobileFrameMode) {
-      try {
-        frameSources[index] = await getFrameBlob(index);
-        loadedCount += 1;
-        updateProgress();
-        if (index === 0 || Math.abs(index - pendingFrame) < 3) requestMobileDecode();
-      } catch { /* A nearby loaded frame is used when one request fails. */ }
+  const prefetchFrame = async (index) => {
+    try { await getFrameBlob(index); } catch { /* Failed frames count as completed and use the nearest fallback. */ }
+    updateProgress();
+  };
+  const runPool = async (items, workerCount, task) => {
+    const queue = [...items];
+    const workers = Array.from({ length: workerCount }, async () => {
+      while (queue.length) await task(queue.shift());
+    });
+    await Promise.allSettled(workers);
+  };
+
+  const keyframes = mobileFrameMode
+    ? [0, 12, 24, 36, 48, 60, 72, 84, 99]
+    : [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 99];
+  const keyframeSet = new Set(keyframes);
+  const progressiveQueue = [
+    ...keyframes,
+    ...Array.from({ length: frameCount }, (_, index) => index).filter((index) => !keyframeSet.has(index))
+  ];
+  let warmupStarted = false;
+  let backgroundBusy = false;
+  const scheduleIdle = (callback) => {
+    if ('requestIdleCallback' in window) return window.requestIdleCallback(callback, { timeout: 700 });
+    return setTimeout(() => callback({ didTimeout: true, timeRemaining: () => 8 }), 80);
+  };
+  const pumpProgressiveQueue = (deadline) => {
+    if (backgroundBusy || !progressiveQueue.length) return;
+    const batch = [];
+    const batchLimit = mobileFrameMode ? 2 : 3;
+    while (progressiveQueue.length && batch.length < batchLimit && (deadline.didTimeout || deadline.timeRemaining() > 3)) {
+      const index = progressiveQueue.shift();
+      if (!frameNetworkReady.has(index) && !frameFailures.has(index)) batch.push(index);
+    }
+    if (!batch.length) {
+      if (progressiveQueue.length) scheduleIdle(pumpProgressiveQueue);
       return;
     }
-    await new Promise((resolve) => {
-      const image = new Image();
-      image.decoding = 'async';
-      image.onload = () => {
-        frames[index] = image;
-        loadedCount += 1;
-        updateProgress();
-        if (index === 0 || Math.abs(index - pendingFrame) < 3) requestRender(pendingFrame);
-        resolve();
-      };
-      image.onerror = resolve;
-      image.src = pathFor(index);
+    backgroundBusy = true;
+    runPool(batch, batchLimit, prefetchFrame).finally(() => {
+      backgroundBusy = false;
+      if (progressiveQueue.length) scheduleIdle(pumpProgressiveQueue);
     });
   };
-  const preload = async () => {
-    const priority = [0,1,2,3,4,5,10,15,20,30,40,50,60,70,80,90,99];
-    const remaining = Array.from({ length: frameCount }, (_, index) => index).filter((index) => !priority.includes(index));
-    const queue = [...priority, ...remaining];
-    const workers = Array.from({ length: mobileFrameMode ? 3 : 4 }, async () => {
-      while (queue.length) await loadFrame(queue.shift());
+  const beginWarmup = async () => {
+    if (warmupStarted) return;
+    warmupStarted = true;
+    await runPool(keyframes, mobileFrameMode ? 2 : 3, async (index) => {
+      try { await decodeFrame(index); } catch { /* Remaining keyframes continue loading. */ }
     });
-    await Promise.all(workers);
+    pruneDecodedFrames(false);
+    requestRender(pendingFrame, false);
+    scheduleIdle(pumpProgressiveQueue);
   };
   let cinematicActive = false;
   let scrollRafId = 0;
@@ -523,27 +576,23 @@
   resize();
   window.addEventListener('resize', resize, { passive: true });
   window.addEventListener('scroll', requestCinematicUpdate, { passive: true });
-  let preloadStarted = false;
-  const beginPreload = () => {
-    if (preloadStarted) return;
-    preloadStarted = true;
-    preload();
-  };
   if ('IntersectionObserver' in window) {
     const activityObserver = new IntersectionObserver((entries) => {
       cinematicActive = entries.some((entry) => entry.isIntersecting);
-      if (!cinematicActive) pruneMobileFrames(true);
+      if (!cinematicActive) pruneDecodedFrames(true);
       requestCinematicUpdate();
     });
     activityObserver.observe(cinematic);
     const preloadObserver = new IntersectionObserver((entries, instance) => {
       if (!entries.some((entry) => entry.isIntersecting)) return;
       instance.disconnect();
-      beginPreload();
-    }, { threshold: 0, rootMargin: '0px 0px -35% 0px' });
+      preloaderDone.then(beginWarmup);
+    }, { threshold: 0, rootMargin: '125% 0px' });
     preloadObserver.observe(cinematic);
   } else {
-    beginPreload();
+    preloaderDone.then(beginWarmup);
   }
-})();
 
+  updateProgress();
+  preloaderDone.then(() => decodeFrame(0).then(() => requestRender(0, false)).catch(() => {}));
+})();

@@ -17,7 +17,7 @@
       window.__bgBaulandPreloaderFailsafe = setTimeout(function () {
         root.classList.remove('preloader-pending');
         root.classList.add('preloader-failed');
-      }, 60000);
+      }, 6500);
     }());
   </script>
   <link rel="icon" href="./assets/images/bg-logo.png?v=2" type="image/png">
@@ -51,7 +51,7 @@
     "areaServed": "Hockenheim und Umgebung"
   }
   </script>
-  <script src="./app.js?v=12" defer></script>
+  <script src="./app.js?v=15" defer></script>
 </head>
 <body>
   <div class="site-preloader" data-preloader role="region" aria-label="BG Bauland wird vorbereitet" aria-busy="true">
@@ -132,10 +132,10 @@
     <section class="cinematic" id="baufortschritt" aria-labelledby="cinematic-title" data-cinematic>
       <div class="cinematic-sticky">
         <canvas class="cinematic-canvas" width="1920" height="1080" aria-label="Visualisierter Baufortschritt von der Vorbereitung bis zum fertigen Ergebnis"></canvas>
-        <video class="cinematic-video" muted playsinline loop preload="metadata" poster="./assets/images/construction-anchor.webp" aria-label="Visualisierter Baufortschritt">
+        <video class="cinematic-video" muted playsinline loop preload="none" poster="./assets/images/construction-anchor.webp" aria-label="Visualisierter Baufortschritt">
           <source src="./assets/videos/transformation.mp4" type="video/mp4">
         </video>
-        <img class="cinematic-poster" src="./assets/images/construction-anchor.webp" width="1920" height="1080" alt="Geordnete Baustelle während der Bauarbeiten">
+        <img class="cinematic-poster" src="./assets/images/construction-anchor.webp" width="1920" height="1080" loading="lazy" decoding="async" fetchpriority="low" alt="Geordnete Baustelle während der Bauarbeiten">
         <div class="cinematic-overlay"></div>
         <div class="cinematic-copy shell">
           <p class="eyebrow"><span></span> Ein Projekt. Viele Arbeitsschritte.</p>
@@ -193,7 +193,7 @@
     </section>
 
     <section class="experience" id="erfahrung" aria-labelledby="experience-title">
-      <img src="./assets/images/reinforcement.webp" width="1920" height="1080" loading="lazy" alt="Präzise vorbereitete Bewehrungsstahl-Konstruktion">
+          <img src="./assets/images/reinforcement.webp" width="1920" height="1080" loading="lazy" decoding="async" fetchpriority="low" alt="Präzise vorbereitete Bewehrungsstahl-Konstruktion">
       <div class="experience-shade"></div>
       <div class="shell experience-content">
         <p class="eyebrow"><span></span> Erfahrung &amp; Verantwortung</p>
@@ -225,7 +225,7 @@
     </section>
 
     <section class="contact" id="kontakt" aria-labelledby="contact-title">
-      <img src="./assets/images/contact-project.webp" width="1920" height="1080" loading="lazy" alt="Fertiggestellte moderne Immobilie mit gepflasterter Zufahrt">
+          <img src="./assets/images/contact-project.webp" width="1920" height="1080" loading="lazy" decoding="async" fetchpriority="low" alt="Fertiggestellte moderne Immobilie mit gepflasterter Zufahrt">
       <div class="contact-shade"></div>
       <div class="shell contact-grid">
         <div class="contact-copy reveal">
