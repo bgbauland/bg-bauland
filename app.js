@@ -10,20 +10,34 @@
   updateHeader();
   window.addEventListener('scroll', updateHeader, { passive: true });
 
-  const closeMenu = () => {
-    document.body.classList.remove('menu-open');
-    menuButton?.setAttribute('aria-expanded', 'false');
-    menuButton?.querySelector('.sr-only')?.replaceChildren('Navigation öffnen');
+  let menuScrollY = 0;
+  const setMenuState = (open, restoreFocus = false) => {
+    const wasOpen = document.body.classList.contains('menu-open');
+    if (open === wasOpen) return;
+
+    if (open) {
+      menuScrollY = window.scrollY;
+      document.body.style.top = `-${menuScrollY}px`;
+      document.body.classList.add('menu-open');
+    } else {
+      document.body.classList.remove('menu-open');
+      document.body.style.removeProperty('top');
+      const previousScrollBehavior = document.documentElement.style.scrollBehavior;
+      document.documentElement.style.scrollBehavior = 'auto';
+      window.scrollTo(0, menuScrollY);
+      document.documentElement.style.scrollBehavior = previousScrollBehavior;
+      if (restoreFocus) menuButton?.focus({ preventScroll: true });
+    }
+
+    menuButton?.setAttribute('aria-expanded', String(open));
+    menuButton?.querySelector('.sr-only')?.replaceChildren(open ? 'Navigation schließen' : 'Navigation öffnen');
   };
 
-  menuButton?.addEventListener('click', () => {
-    const open = !document.body.classList.contains('menu-open');
-    document.body.classList.toggle('menu-open', open);
-    menuButton.setAttribute('aria-expanded', String(open));
-    menuButton.querySelector('.sr-only')?.replaceChildren(open ? 'Navigation schließen' : 'Navigation öffnen');
-  });
-  nav?.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMenu));
-  document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeMenu(); });
+  const closeMenu = (restoreFocus = false) => setMenuState(false, restoreFocus);
+  menuButton?.addEventListener('click', () => setMenuState(!document.body.classList.contains('menu-open')));
+  nav?.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => closeMenu(false)));
+  document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeMenu(true); });
+  window.matchMedia('(min-width: 901px)').addEventListener('change', (event) => { if (event.matches) closeMenu(false); });
 
   document.querySelectorAll('[data-year]').forEach((node) => { node.textContent = String(new Date().getFullYear()); });
 
