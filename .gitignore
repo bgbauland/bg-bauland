@@ -1,0 +1,8 @@
+# Raw generation files
+assets/images/*.png
+
+# Local tools and previews
+.tools/
+*.log
+.DS_Store
+Thumbs.db

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://bgbauland.github.io/bg-bauland/sitemap.xml
