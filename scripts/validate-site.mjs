@@ -49,7 +49,8 @@ try { new Function(app); } catch (error) { noteFailure(`app.js ist syntaktisch u
 for (const marker of ['requestIdleCallback', 'IntersectionObserver', 'createImageBitmap', 'frameBlobCacheLimit']) {
   if (!app.includes(marker)) noteFailure(`Performance-Mechanismus fehlt in app.js: ${marker}`);
 }
-if (app.includes('loadAllFrames')) noteFailure('Der Preloader darf nicht alle Frames blockierend laden.');
+if (!app.includes('loadAllFrames')) noteFailure('Der Preloader muss alle 100 Frames vor der Freigabe vorbereiten.');
+if (!app.includes('frameBlobCacheLimit = 100')) noteFailure('Der vollständige komprimierte Frame-Cache fehlt.');
 
 const index = readFileSync(join(root, 'index.html'), 'utf8');
 if (!index.includes('preload="none"')) noteFailure('Der versteckte Video-Fallback darf nicht initial vorgeladen werden.');

@@ -1,8 +1,20 @@
 # Performance-Audit
 
-Stand: 28. Juli 2026
+Stand: 3. August 2026
 
-## Ergebnis
+## Mobile-Smoothness-Update
+
+Die Begrenzung des komprimierten Blob-Caches auf 12 mobile Frames führte beim Vor- und Zurückscrollen zu erneuten Requests und Dekodierungen während der Scrollbewegung. Für eine flüssige Bedienung gilt deshalb wieder:
+
+- Beim ersten Besuch einer Sitzung lädt der Preloader alle 100 komprimierten WebP-Frames vollständig.
+- Der vollständige Blob-Cache bleibt mit rund 6 MiB im Arbeitsspeicher; erneute Frame-Downloads beim Scrollen entfallen.
+- Mobil bleiben höchstens 12 Frames gleichzeitig als Bitmaps dekodiert, außerhalb der Sequenz 8. Dadurch bleibt der deutlich größere dekodierte Speicher begrenzt.
+- Der Sicherheits-Timeout beträgt 25 Sekunden; fehlgeschlagene Einzelbilder blockieren die Seite weiterhin nicht dauerhaft.
+- Gestaltung, Scroll-Mapping, Frame-Anzahl und Bildqualität bleiben unverändert.
+
+Die folgenden Tabellen dokumentieren den historischen Auditstand vom 28. Juli 2026 vor dieser gezielten Rücknahme der mobilen Cache-Begrenzung.
+
+## Historischer Performance-Stand vom 28. Juli 2026
 
 | Messwert | Vorher | Nachher | Veränderung |
 |---|---:|---:|---:|

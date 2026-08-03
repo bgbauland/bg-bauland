@@ -97,9 +97,9 @@ Noch zu ergänzen sind insbesondere:
 
 - Hero-Bild wird priorisiert geladen.
 - Bilder unterhalb des sichtbaren Bereichs verwenden Lazy Loading.
-- Der Preloader blockiert nur auf Hero, Logo, Fonts und sechs frühe Frames.
-- Strategische Frames werden in Abschnittsnähe geladen; der Rest folgt mit begrenzter Parallelität in Leerlaufphasen.
-- Decodierte Frames und Blobs verwenden getrennte, geräteabhängige Cache-Grenzen.
+- Der Preloader lädt beim ersten Besuch Hero, Logo, Fonts und alle 100 komprimierten Frames, bevor die Seite freigegeben wird.
+- Alle Frame-Blobs bleiben für ruckelfreies Vor- und Zurückscrollen im Speicher; parallele Anfragen bleiben begrenzt.
+- Decodierte Bitmaps verwenden weiterhin geräteabhängige Grenzen, damit die mobile Speichernutzung kontrolliert bleibt.
 - Der versteckte Videoclip wird erst bei tatsächlicher Verwendung angefordert.
 - Bei `prefers-reduced-motion: reduce` wird ein statisches Schlüsselbild gezeigt.
 - Sämtliche Assets sind lokal eingebunden; es gibt keine externen Fonts oder JavaScript-Abhängigkeiten.

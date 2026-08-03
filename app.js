@@ -12,7 +12,10 @@
   const frameBlobRequests = new Map();
   const frameNetworkReady = new Set();
   const frameFailures = new Set();
-  const frameBlobCacheLimit = compactFrameMode ? 12 : 28;
+  // Keep the complete compressed sequence in memory. The 100 WebP blobs use
+  // only a fraction of the memory required by fully decoded bitmaps and avoid
+  // network requests while the user scrubs the timeline in either direction.
+  const frameBlobCacheLimit = 100;
   const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
   const rememberFrameBlob = (index, blob) => {
     frameBlobCache.delete(index);
@@ -74,10 +77,10 @@
     const percentage = preloader.querySelector('.site-preloader__percentage');
     const startedAt = performance.now();
     const minimumDuration = 500;
-    const maximumDuration = reduceMotion ? 2500 : 5000;
-    const criticalFrames = [0, 1, 2, 3, 4, 8];
+    const maximumDuration = reduceMotion ? 2500 : 25000;
+    const priorityFrames = [0, 1, 2, 3, 4, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 99];
     let completedWeight = 0;
-    const totalWeight = 12;
+    const totalWeight = 106;
     let targetProgress = 0;
     let displayedProgress = 0;
     let progressRaf = 0;
@@ -122,12 +125,27 @@
       if (!response.ok) throw new Error(`${source} konnte nicht geladen werden.`);
       return response.blob();
     });
-    const criticalWork = Promise.allSettled([
+    const loadAllFrames = async () => {
+      const prioritySet = new Set(priorityFrames);
+      const queue = [
+        ...priorityFrames,
+        ...Array.from({ length: 100 }, (_, index) => index).filter((index) => !prioritySet.has(index))
+      ];
+      const workerCount = compactFrameMode ? 4 : 6;
+      const workers = Array.from({ length: workerCount }, async () => {
+        while (queue.length) {
+          const index = queue.shift();
+          await track(getFrameBlob(index).catch(() => null), 1);
+        }
+      });
+      await Promise.all(workers);
+    };
+    const essentialWork = Promise.allSettled([
       track(loadImage('./assets/images/hero-bg-bauland.webp'), 3),
       track(loadImage('./assets/images/bg-logo.png?v=2'), 1),
       track(fetchAsset('./assets/fonts/inter-latin.woff2?v=1'), 1),
       track(fetchAsset('./assets/fonts/roboto-condensed-latin.woff2?v=1'), 1),
-      ...criticalFrames.map((index) => track(getFrameBlob(index), 1))
+      loadAllFrames()
     ]);
 
     const finish = async () => {
@@ -153,7 +171,7 @@
       root.classList.add('preloader-complete');
     };
 
-    return Promise.race([criticalWork, wait(maximumDuration)]).then(finish, finish);
+    return Promise.race([essentialWork, wait(maximumDuration)]).then(finish, finish);
   };
 
   const preloaderDone = initPreloader();
@@ -339,7 +357,7 @@
   const context = canvas.getContext('2d', { alpha: false });
   const frameCount = 100;
   const mobileFrameMode = compactFrameMode;
-  const decodedFrameLimit = mobileFrameMode ? 8 : 28;
+  const decodedFrameLimit = mobileFrameMode ? 12 : 28;
   const frames = new Array(frameCount);
   const frameAccess = new Array(frameCount).fill(0);
   const decodeRequests = new Map();
@@ -385,7 +403,7 @@
     if (currentFrame === index) currentFrame = -1;
   };
   const pruneDecodedFrames = (aggressive = false) => {
-    const limit = aggressive ? (mobileFrameMode ? 1 : 8) : decodedFrameLimit;
+    const limit = aggressive ? 8 : decodedFrameLimit;
     const decoded = frames.map((image, index) => image ? index : -1).filter((index) => index >= 0);
     decoded
       .sort((a, b) => {
