@@ -176,14 +176,6 @@
 
   const preloaderDone = initPreloader();
 
-  if (document.body.classList.contains('service-page') && nav && !nav.querySelector('.nav-home-link')) {
-    const homeLink = document.createElement('a');
-    homeLink.className = 'nav-home-link';
-    homeLink.href = '../index.html#top';
-    homeLink.textContent = 'Startseite';
-    nav.prepend(homeLink);
-  }
-
   let headerScrolled;
   let headerRaf = 0;
   const updateHeader = () => {

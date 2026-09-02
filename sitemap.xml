@@ -2,9 +2,12 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://bgbauland.github.io/bg-bauland/</loc></url>
   <url><loc>https://bgbauland.github.io/bg-bauland/erd-tiefbau/</loc></url>
-  <url><loc>https://bgbauland.github.io/bg-bauland/abbrucharbeiten/</loc></url>
+  <url><loc>https://bgbauland.github.io/bg-bauland/beton-rohbau/</loc></url>
+  <url><loc>https://bgbauland.github.io/bg-bauland/bau-sanierungsarbeiten/</loc></url>
   <url><loc>https://bgbauland.github.io/bg-bauland/pflasterarbeiten/</loc></url>
   <url><loc>https://bgbauland.github.io/bg-bauland/aussenanlagen/</loc></url>
+  <url><loc>https://bgbauland.github.io/bg-bauland/projekte/</loc></url>
+  <url><loc>https://bgbauland.github.io/bg-bauland/ueber-uns/</loc></url>
   <url><loc>https://bgbauland.github.io/bg-bauland/impressum.html</loc></url>
   <url><loc>https://bgbauland.github.io/bg-bauland/datenschutz.html</loc></url>
 </urlset>
