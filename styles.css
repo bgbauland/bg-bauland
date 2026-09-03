@@ -811,7 +811,6 @@ html.preloader-pending,html.preloader-pending body{overflow:hidden}
 .trust-bar ul{list-style:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:0;margin:0;border-top:1px solid var(--line)}
 .trust-bar li{min-width:0;display:grid;gap:5px;padding:24px 26px;border-right:1px solid var(--line)}
 .trust-bar li:last-child{border-right:0}
-.trust-bar li>span{color:var(--orange);font-size:.58rem;font-weight:800;letter-spacing:.14em}
 .trust-bar strong{font-family:var(--display);font-size:clamp(1.35rem,2vw,1.8rem);line-height:1;text-transform:uppercase}
 .trust-bar small{color:#66635d;font-size:.72rem}
 
@@ -1106,8 +1105,7 @@ p{text-wrap:pretty}
 .footer-column h2::before{content:"";width:24px;height:2px;background:var(--orange)}
 .footer-column>a{position:relative;min-height:38px;color:rgba(255,255,255,.68);transition:color .2s ease,transform .2s var(--motion-material)}
 .footer-column>a:hover,.footer-column>a:focus-visible{color:#fff;transform:translateX(3px)}
-.footer-services>a{display:grid;width:100%;grid-template-columns:28px minmax(0,1fr);align-items:start;gap:4px;padding:8px 0}
-.footer-services>a>span{padding-top:2px;color:var(--orange);font-size:.56rem;font-weight:800;letter-spacing:.1em}
+.footer-services>a{display:grid;width:100%;grid-template-columns:minmax(0,1fr);align-items:start;padding:8px 0}
 .footer-services>a>strong{font-size:.76rem;font-weight:600;line-height:1.42}
 .footer-company>a{display:inline-flex;align-items:center;gap:8px;padding:7px 0;font-size:.78rem;font-weight:600}
 .footer-company .arrow-icon{width:12px;height:12px}
@@ -1148,7 +1146,7 @@ p{text-wrap:pretty}
   .footer-brand-block .brand-footer{margin-bottom:26px}
   .footer-summary{max-width:34ch}
   .footer-column h2{margin-bottom:18px}
-  .footer-services>a{grid-template-columns:30px minmax(0,1fr);padding-block:9px}
+  .footer-services>a{grid-template-columns:minmax(0,1fr);padding-block:9px}
   .footer-services>a>strong{font-size:.82rem}
   .footer-column>a{min-height:44px}
   .footer-bottom{grid-template-columns:1fr;gap:14px;padding-block:22px 28px}
@@ -1160,6 +1158,12 @@ p{text-wrap:pretty}
 /* Final content polish: the hero closes on one quiet scroll cue. */
 .hero-foot{justify-content:flex-end}
 .hero-foot .scroll-cue{margin-left:0}
+
+/* Number hierarchy: reserve indices for services and real process steps. */
+.stage-label>span{display:none}
+.service-card>span{font-size:.54rem;color:rgba(17,17,15,.48)}
+.service-card:hover>span,.service-card:focus-within>span{color:rgba(255,255,255,.52)}
+.experience li{grid-template-columns:1fr;gap:0}
 
 @media(prefers-reduced-motion:reduce){
   .footer-column>a{transition:none}
