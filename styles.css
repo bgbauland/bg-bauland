@@ -131,9 +131,8 @@ body.menu-open{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;ove
 @media(max-width:600px){.service-card.reveal{transition-delay:0s}.experience>img{transform:scale(1.03);will-change:auto}}
 @media(prefers-reduced-motion:reduce){.service-card.reveal{transition-delay:0s}.project-image img,.project-image.is-visible img,.project-image.is-visible:hover img,.experience>img{transform:none!important;will-change:auto}}
 
-/* Viewport-complete sections: each main content block owns at least one screen. */
+/* Editorial section rhythm: content and spacing tokens determine normal sections. */
 @media(min-width:901px){
-  .services,.project-strip,.details,.experience,.process,.contact{min-height:100dvh}
   .services,.details,.process{display:flex;flex-direction:column;padding:clamp(66px,8dvh,96px) 0 clamp(28px,4dvh,44px)}
   .services>.shell,.details>.shell,.process>.shell,.project-strip>.shell{display:grid;min-height:0;flex:1}
   .services>.shell,.process>.shell{grid-template-rows:auto minmax(0,1fr)}
@@ -157,7 +156,7 @@ body.menu-open{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;ove
   .detail-row>div{grid-template-columns:1fr;gap:6px;align-items:start}
   .detail-row h3{font-size:clamp(1.25rem,2.3dvh,1.75rem);overflow-wrap:anywhere}
   .detail-row p{font-size:clamp(.74rem,1.42dvh,.84rem);line-height:1.4}
-  .experience{height:100dvh;min-height:650px}
+  .experience{height:clamp(720px,92svh,850px);min-height:0}
   .experience-content{padding-top:clamp(82px,11dvh,112px)}
   .experience-bottom{margin-bottom:clamp(38px,6dvh,62px)}
   .process-list{min-height:0}
@@ -173,7 +172,6 @@ body.menu-open{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;ove
 @media(max-width:900px){
   .hero{height:max(700px,100dvh);min-height:max(700px,100dvh)}
   .hero-content{min-height:100dvh}
-  .services,.project-strip,.details,.experience,.process,.contact{min-height:100dvh}
   .services,.details,.process{display:flex;flex-direction:column;padding:76px 0 22px}
   .services>.shell,.details>.shell,.process>.shell,.project-strip>.shell{display:grid;min-height:0;flex:1}
   .services>.shell,.process>.shell{grid-template-rows:auto minmax(0,1fr)}
@@ -205,7 +203,7 @@ body.menu-open{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;ove
   .detail-row h3{font-size:clamp(.98rem,4.5vw,1.15rem);line-height:1.05}
   .detail-row p{display:-webkit-box;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:2;font-size:.72rem;line-height:1.3}
   .detail-mark{width:10px;height:10px}
-  .experience{height:100dvh;min-height:700px}
+  .experience{height:auto;min-height:700px}
   .experience-content{padding-top:78px}
   .experience h2{font-size:clamp(2.35rem,11vw,3.15rem)}
   .experience-bottom{gap:28px;margin-bottom:26px}
@@ -364,22 +362,22 @@ body.menu-open{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;ove
 
 @supports(scrollbar-gutter:stable){html{scrollbar-gutter:stable}}
 
-/* Viewport-complete service sections and visual workflow cards. */
-.service-intro,.service-scope,.why-service{min-height:100dvh;padding-block:clamp(66px,8dvh,96px);display:flex;flex-direction:column;justify-content:center}
+/* Content-driven service sections and visual workflow cards. */
+.service-intro,.service-scope,.why-service{height:auto;min-height:0;padding-block:clamp(66px,8dvh,96px)}
 .service-intro>.shell,.service-scope>.shell,.why-service>.shell{width:var(--shell)}
-.service-cta{min-height:100dvh}
+.service-cta{min-height:560px}
 .process-list li{position:relative;isolation:isolate;overflow:hidden;background:#171714;color:#fff}
 .process-list li::after{content:"";position:absolute;z-index:1;inset:0;background:linear-gradient(180deg,rgba(10,10,9,.16) 0%,rgba(10,10,9,.24) 38%,rgba(10,10,9,.94) 100%);pointer-events:none}
 .process-image{position:absolute;z-index:0;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(.78) contrast(1.04);transition:transform .7s ease,filter .7s ease}
 .process-list>li>span,.process-list>li>div{position:relative;z-index:2}
 .process-list p{color:rgba(255,255,255,.76)}
 @media(max-width:900px){
-  .service-intro,.service-scope,.why-service{min-height:100dvh;padding:76px 0 32px}
-  .service-cta{min-height:100dvh}
+  .service-intro,.service-scope,.why-service{height:auto;min-height:0;padding:76px 0 32px}
+  .service-cta{min-height:540px}
 }
 @media(max-width:600px){
-  .service-intro,.service-scope,.why-service{min-height:100dvh;padding:76px 0 32px}
-  .service-cta{min-height:100dvh}
+  .service-intro,.service-scope,.why-service{height:auto;min-height:0;padding:76px 0 32px}
+  .service-cta{min-height:520px}
 }
 @media(hover:hover){.process-list li:hover .process-image{transform:scale(1.035);filter:saturate(.95) contrast(1.04)}}
 
@@ -587,9 +585,6 @@ body.menu-open{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;ove
   .project-image figcaption strong{font-size:.66rem}
 }
 
-@media(min-width:901px){.project-strip{height:100dvh}}
-@media(max-width:900px){.project-strip{height:100dvh}}
-
 @media(max-width:600px){
   .nav-services-toggle{font-size:clamp(1.9rem,9vw,2.35rem)}
   .project-image figcaption strong{font-size:.58rem}
@@ -610,18 +605,16 @@ body.menu-open{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;ove
 
 /* Stable mobile experience section: browser chrome must not resize the image. */
 @media(max-width:900px){
-  .experience{height:max(700px,100lvh);min-height:max(700px,100lvh)}
+  .experience{height:auto;min-height:700px}
   .experience>img{transform:none;will-change:auto}
 }
 
-/* Stable viewport sizing for every mobile full-screen container. */
+/* Stable viewport sizing only for genuine mobile full-screen moments. */
 @media(max-width:900px){
   .hero{height:auto;min-height:max(792px,calc(100lvh + 72px))}
   .hero-content{min-height:max(720px,100lvh)}
   .hero-foot{top:calc(100lvh - 52px)}
   .cinematic-sticky{height:100lvh}
-  .services,.project-strip,.details,.process,.contact{min-height:max(700px,100lvh)}
-  .project-strip{height:max(700px,100lvh)}
   .site-nav{height:100lvh;min-height:100lvh}
   .service-hero{min-height:max(700px,100lvh)}
 }
@@ -684,7 +677,7 @@ html.preloader-pending,html.preloader-pending body{overflow:hidden}
 
 .editorial-hero .service-hero-content{max-width:1240px}
 .editorial-hero h1{max-width:1050px}
-.editorial-intro,.projects-showcase,.about-experience,.related-services{min-height:100dvh}
+.editorial-intro,.projects-showcase,.related-services{height:auto;min-height:0}
 .editorial-intro{display:flex;align-items:center;padding:clamp(76px,9dvh,110px) 0;background:var(--paper)}
 .editorial-intro-grid{display:grid;grid-template-columns:.82fr 1.18fr;gap:clamp(48px,7vw,100px);align-items:start}
 .editorial-intro h2,.projects-showcase h2,.about-experience h2,.related-services h2{margin:0;font-size:clamp(3rem,7.4dvh,5.8rem)}
@@ -724,7 +717,7 @@ html.preloader-pending,html.preloader-pending body{overflow:hidden}
 .about-values li>span{grid-row:1/3;color:var(--orange);font-size:.6rem;font-weight:800;letter-spacing:.14em}
 .about-values strong{font-family:var(--display);font-size:1.5rem;text-transform:uppercase}
 .about-values p{margin:6px 0 0;color:rgba(255,255,255,.65);font-size:.86rem}
-.editorial-process{min-height:100dvh}
+.editorial-process{height:auto;min-height:0}
 
 .related-services{display:flex;align-items:center;padding:clamp(76px,9dvh,110px) 0;background:var(--paper-2)}
 .related-services-head{display:grid;grid-template-columns:.55fr 1.45fr;gap:50px;align-items:end;margin-bottom:clamp(30px,5dvh,52px)}
@@ -785,13 +778,13 @@ html.preloader-pending,html.preloader-pending body{overflow:hidden}
 .cinematic-handoff span:last-child{border-right:1px solid rgba(243,108,33,.26)}
 .services{position:relative;background-image:linear-gradient(to right,transparent calc(25% - .5px),rgba(17,17,15,.055) 25%,transparent calc(25% + .5px)),linear-gradient(to right,transparent calc(50% - .5px),rgba(17,17,15,.055) 50%,transparent calc(50% + .5px)),linear-gradient(to right,transparent calc(75% - .5px),rgba(17,17,15,.055) 75%,transparent calc(75% + .5px));background-repeat:no-repeat;background-size:100% clamp(76px,11vh,118px)}
 
-.project-strip.project-teaser{height:auto;min-height:100dvh;padding:clamp(64px,8dvh,92px) 0 clamp(28px,4dvh,46px);background:var(--ink)}
-.project-teaser>.shell{display:grid;grid-template-rows:auto minmax(0,1fr) auto;min-height:calc(100dvh - clamp(92px,12dvh,138px))}
+.project-strip.project-teaser{height:auto;min-height:0;padding:clamp(64px,8dvh,92px) 0 clamp(28px,4dvh,46px);background:var(--ink)}
+.project-teaser>.shell{display:grid;grid-template-rows:auto minmax(0,1fr) auto;min-height:0}
 .project-teaser .section-head{margin-bottom:clamp(22px,3dvh,34px);color:#fff}
 .project-teaser .section-head h2{font-size:clamp(3rem,7.5dvh,5.6rem)}
 .project-teaser-copy{max-width:430px;justify-self:end}
 .project-teaser-copy p{margin:0 0 24px;color:rgba(255,255,255,.66)}
-.project-teaser-grid{display:grid;grid-template-columns:1.15fr .85fr;grid-template-rows:repeat(2,minmax(0,1fr));gap:14px;min-height:0}
+.project-teaser-grid{display:grid;grid-template-columns:1.15fr .85fr;grid-template-rows:repeat(2,minmax(0,1fr));gap:14px;min-height:clamp(500px,62dvh,660px)}
 .project-teaser-grid .project-image{min-height:0}
 .project-image-featured{grid-row:1/-1}
 .project-teaser .image-disclaimer{margin:18px 0 0}
@@ -1086,4 +1079,128 @@ p{text-wrap:pretty}
 @media(prefers-reduced-motion:reduce){
   .button,.nav-cta,.service-card,.scope-item,.service-info-card,.service-process-step,.related-service-card,.related-service,.faq-item summary{transition:none}
   .button:hover,.button:focus-visible,.nav-cta:hover,.nav-cta:focus-visible{transform:none}
+}
+
+/* Final site header and informational footer. */
+@media(min-width:901px){
+  .site-nav{margin-left:auto;gap:clamp(24px,2.5vw,38px)}
+}
+
+.site-footer{padding:0;border-top:1px solid var(--light-line)}
+.footer-main{grid-template-columns:minmax(210px,1.1fr) minmax(250px,1.4fr) minmax(170px,.85fr) minmax(220px,1.05fr);gap:0;align-items:stretch;padding-block:var(--section-space-lg)}
+.footer-main>*{min-width:0;padding-inline:clamp(24px,2.6vw,40px)}
+.footer-main>*:first-child{padding-left:0}
+.footer-main>*:last-child{padding-right:0}
+.footer-main>*+*{border-left:1px solid var(--light-line)}
+.footer-brand-block .brand-footer{margin-bottom:32px}
+.footer-brand-block .brand-logo{width:88px}
+.footer-kicker{margin:0 0 18px;color:rgba(255,255,255,.54);font-size:.62rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
+.footer-summary{max-width:30ch;margin:0;color:rgba(255,255,255,.7);font-size:.82rem;line-height:1.65}
+.footer-column{display:flex;min-width:0;flex-direction:column;align-items:flex-start}
+.footer-column h2{display:flex;align-items:center;gap:12px;margin:0 0 23px;color:#fff;font-family:var(--body);font-size:.62rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase}
+.footer-column h2::before{content:"";width:24px;height:2px;background:var(--orange)}
+.footer-column>a{position:relative;min-height:38px;color:rgba(255,255,255,.68);transition:color .2s ease,transform .2s var(--motion-material)}
+.footer-column>a:hover,.footer-column>a:focus-visible{color:#fff;transform:translateX(3px)}
+.footer-services>a{display:grid;width:100%;grid-template-columns:28px minmax(0,1fr);align-items:start;gap:4px;padding:8px 0}
+.footer-services>a>span{padding-top:2px;color:var(--orange);font-size:.56rem;font-weight:800;letter-spacing:.1em}
+.footer-services>a>strong{font-size:.76rem;font-weight:600;line-height:1.42}
+.footer-company>a{display:inline-flex;align-items:center;gap:8px;padding:7px 0;font-size:.78rem;font-weight:600}
+.footer-company .arrow-icon{width:12px;height:12px}
+.footer-contact{gap:0;font-size:inherit}
+.footer-contact address{margin:0 0 20px;color:rgba(255,255,255,.58);font-size:.76rem;line-height:1.65}
+.footer-contact .footer-contact-link{display:grid;width:100%;gap:3px;padding:8px 0}
+.footer-contact-link>span{color:var(--orange);font-size:.54rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+.footer-contact-link>strong{font-size:.76rem;font-weight:600;overflow-wrap:anywhere}
+.footer-contact .footer-whatsapp{justify-content:flex-start;width:100%;min-height:44px;margin-top:12px;padding:13px 0;border:0;border-top:1px solid var(--light-line);background:transparent;color:rgba(255,255,255,.75)}
+.footer-contact .footer-whatsapp:hover,.footer-contact .footer-whatsapp:focus-visible{background:transparent;color:#fff;transform:translateX(3px)}
+.footer-contact .whatsapp-icon{stroke:var(--orange)}
+.footer-contact .footer-whatsapp:hover .whatsapp-icon,.footer-contact .footer-whatsapp:focus-visible .whatsapp-icon{stroke:var(--orange)}
+.footer-bottom{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;padding-block:22px}
+.footer-meta{display:flex;flex-wrap:wrap;gap:10px 28px}
+.footer-bottom .site-credit{justify-self:center}
+.footer-bottom .site-credit strong{margin-left:.35em}
+.footer-bottom nav{justify-self:end}
+
+@media(max-width:1100px){
+  .footer-main{grid-template-columns:repeat(2,minmax(0,1fr));padding-block:34px}
+  .footer-main>*{padding:34px clamp(24px,4vw,44px);border-left:0}
+  .footer-main>*:nth-child(even){border-left:1px solid var(--light-line)}
+  .footer-main>*:nth-child(-n+2){border-bottom:1px solid var(--light-line)}
+  .footer-main>*:first-child{padding-left:0}
+  .footer-main>*:nth-child(2){padding-right:0}
+  .footer-main>*:nth-child(3){padding-left:0}
+  .footer-main>*:last-child{padding-right:0}
+  .footer-bottom{grid-template-columns:1fr auto;gap:12px 28px}
+  .footer-bottom .site-credit{justify-self:start}
+  .footer-bottom nav{grid-column:2;grid-row:1/3}
+}
+
+@media(max-width:600px){
+  .footer-main{grid-template-columns:1fr;padding-block:42px 14px}
+  .footer-main>*{padding:28px 0;border-left:0!important;border-bottom:1px solid var(--light-line)}
+  .footer-main>*:first-child{padding-top:0}
+  .footer-main>*:last-child{padding-right:0;border-bottom:0}
+  .footer-brand-block .brand-footer{margin-bottom:26px}
+  .footer-summary{max-width:34ch}
+  .footer-column h2{margin-bottom:18px}
+  .footer-services>a{grid-template-columns:30px minmax(0,1fr);padding-block:9px}
+  .footer-services>a>strong{font-size:.82rem}
+  .footer-bottom{grid-template-columns:1fr;gap:14px;padding-block:22px 28px}
+  .footer-bottom .site-credit,.footer-bottom nav{justify-self:start}
+  .footer-bottom nav{grid-column:auto;grid-row:auto;order:2}
+  .footer-meta{gap:8px 20px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .footer-column>a{transition:none}
+  .footer-column>a:hover,.footer-column>a:focus-visible,.footer-contact .footer-whatsapp:hover,.footer-contact .footer-whatsapp:focus-visible{transform:none}
+}
+
+/* Content-driven chapters: wrappers group related sections without stretching them. */
+.page-chapter{height:auto;min-height:0}
+.service-overview-chapter,.service-final-chapter,.projects-content-chapter,.about-final-chapter{height:auto;min-height:0}
+.service-overview-chapter{background:var(--paper)}
+.service-overview-chapter .service-scope,.service-final-chapter,.about-final-chapter{background:var(--paper-2)}
+.service-faq-chapter{border-top:1px solid var(--line)}
+
+@media(min-width:901px){
+  .hero.page-chapter{min-height:100dvh}
+  .service-page-editorial .service-hero.page-chapter{height:clamp(580px,76svh,760px);min-height:580px}
+  .editorial-hero.page-chapter{height:clamp(620px,82svh,820px);min-height:620px}
+  .service-page-editorial .service-hero.page-chapter .service-hero-content,.editorial-hero.page-chapter .service-hero-content{min-height:100%;justify-content:center}
+
+  .services.page-chapter,.project-teaser.page-chapter,.contact.page-chapter,.home-method-chapter,.home-method-chapter .process,.service-uses-chapter,.service-signature-chapter,.service-process-chapter,.service-faq-chapter,.projects-content-chapter,.projects-content-chapter>.projects-showcase,.about-page .editorial-intro.page-chapter,.about-page .editorial-process.page-chapter,.about-final-chapter{height:auto;min-height:0}
+  .experience.page-chapter{height:clamp(720px,92svh,850px);min-height:0}
+  .about-page .about-experience.page-chapter{height:auto;min-height:clamp(720px,92svh,860px)}
+
+  .home-method-chapter .process>.shell,.service-uses-chapter>.shell,.service-signature-chapter>.shell,.service-process-chapter>.shell,.service-faq-chapter>.shell,.about-page .editorial-process.page-chapter>.shell{width:var(--shell)}
+  .service-overview-chapter .service-intro,.service-overview-chapter .service-scope{height:auto;min-height:0;padding-block:var(--section-space-xl)}
+
+  .service-uses-chapter,.service-process-chapter,.service-faq-chapter{padding-block:var(--section-space-lg)}
+  .service-signature-chapter{padding-block:clamp(88px,8.5vw,128px)}
+  .service-signature-chapter .service-focus-grid{min-height:0;align-content:start;align-items:center}
+  .service-signature-chapter .service-focus-copy{display:block;align-self:center;padding-block:0}
+  .service-signature-chapter .service-focus-copy>:last-child{margin-top:clamp(42px,4vw,64px)}
+  .service-process-chapter>.shell{display:block;min-height:0}
+  .service-process-chapter .service-section-head{margin-bottom:clamp(40px,5vw,68px)}
+  .service-process-chapter .service-process-grid{margin-top:0}
+  .service-faq-chapter>.faq-layout{align-items:start}
+
+  .service-final-chapter>.service-content-section,.about-final-chapter>.related-services{height:auto;min-height:0;padding-block:var(--section-space-md)}
+  .service-final-chapter>.service-cta{min-height:clamp(520px,64svh,640px)}
+  .about-final-chapter>.service-cta{min-height:clamp(540px,66svh,660px)}
+  .projects-content-chapter>.editorial-intro{height:auto;min-height:0;padding-block:var(--section-space-lg)}
+}
+
+@media(max-width:900px){
+  .page-chapter,.services.page-chapter,.project-teaser.page-chapter,.home-method-chapter,.home-method-chapter .process,.contact.page-chapter,.service-overview-chapter,.service-uses-chapter,.service-signature-chapter,.service-process-chapter,.service-faq-chapter,.service-final-chapter,.projects-content-chapter,.about-final-chapter,.experience.page-chapter,.about-page .about-experience.page-chapter{height:auto;min-height:0}
+  .hero.page-chapter,.service-page-editorial .service-hero.page-chapter,.editorial-hero.page-chapter{height:auto;min-height:100svh}
+  .hero.page-chapter .hero-content,.service-page-editorial .service-hero.page-chapter .service-hero-content,.editorial-hero.page-chapter .service-hero-content{min-height:100svh}
+  .experience.page-chapter,.about-page .about-experience.page-chapter{min-height:720px}
+  .project-teaser-grid{min-height:0}
+  .home-method-chapter .process>.shell,.service-uses-chapter>.shell,.service-signature-chapter>.shell,.service-process-chapter>.shell,.service-faq-chapter>.shell,.about-page .editorial-process.page-chapter>.shell{width:var(--shell)}
+  .service-overview-chapter .service-intro,.service-overview-chapter .service-scope{height:auto;min-height:0}
+  .service-signature-chapter .service-focus-copy{display:block;padding-block:0}
+  .service-faq-chapter{border-top:1px solid var(--line)}
+  .service-final-chapter>.service-cta,.about-final-chapter>.service-cta{min-height:520px}
 }
