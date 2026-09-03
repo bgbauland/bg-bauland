@@ -243,28 +243,33 @@ body.menu-open{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;ove
 
 /* Modernized four-part service navigation. */
 .service-card{position:relative}
-.service-icon{width:42px;height:42px;color:var(--orange);fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s ease}
-.service-card:hover .service-icon{transform:translateY(-3px)}
+.service-icon{width:34px;height:34px;color:var(--orange);fill:none;stroke:currentColor;stroke-width:1.65;stroke-linecap:square;stroke-linejoin:miter;opacity:.86;transition:transform .22s ease,opacity .22s ease}
+.service-icon path{vector-effect:non-scaling-stroke}
+.service-card:hover .service-icon,.service-card:focus-within .service-icon{opacity:1;transform:translateY(-1px)}
 .detail-page-link{display:grid;width:34px;height:34px;place-items:center;justify-self:end}
 .detail-page-link:hover{color:var(--orange)}
 @media(min-width:901px){
   .service-index{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(2,minmax(0,1fr))}
   .service-card,.service-card:nth-child(3n){border-right:1px solid var(--line)}
   .service-card:nth-child(2n){border-right:0}
-  .service-icon{position:absolute;top:clamp(16px,2.2dvh,24px);right:30px}
-  .service-card h3{max-width:76%;margin-top:clamp(38px,5dvh,54px)}
+  .service-icon{position:absolute;top:clamp(18px,2.2dvh,24px);right:30px}
+  .service-card h3{min-height:2.1em;max-width:76%;margin-top:clamp(38px,5dvh,54px)}
   .service-card p{max-width:520px}
   .details .detail-list{grid-template-rows:repeat(2,minmax(0,1fr))}
 }
 @media(max-width:900px){
   .service-index{grid-template-rows:repeat(4,minmax(0,1fr))}
-  .service-card,.service-card:nth-child(3n),.service-card-wide{grid-template-columns:24px 28px minmax(0,1fr) auto;column-gap:9px;padding:10px 0}
+  .service-card,.service-card:nth-child(3n),.service-card-wide{grid-template-columns:24px 26px minmax(0,1fr) auto;column-gap:9px;padding:10px 0}
   .service-card>span{grid-column:1;grid-row:1}
-  .service-icon{position:static;grid-column:2;grid-row:1;width:25px;height:25px}
+  .service-icon{position:static;grid-column:2;grid-row:1;width:22px;height:22px;align-self:center}
   .service-card h3,.service-card-wide h3{grid-column:3;grid-row:1;font-size:clamp(1.05rem,4.8vw,1.28rem)}
   .service-card p,.service-card-wide p{display:-webkit-box;grid-column:3/5;grid-row:2;overflow:hidden;margin:6px 0 0;-webkit-box-orient:vertical;-webkit-line-clamp:2;font-size:.71rem;line-height:1.35}
   .service-card a,.service-card-wide a{grid-column:4;grid-row:1}
   .details .detail-list{grid-template-rows:repeat(4,minmax(0,1fr))}
+}
+@media(max-width:400px){
+  .service-card,.service-card:nth-child(3n),.service-card-wide{grid-template-columns:20px 22px minmax(0,1fr) auto;column-gap:6px}
+  .service-icon{width:20px;height:20px}
 }
 
 /* Shared service-detail pages. */
@@ -1145,11 +1150,16 @@ p{text-wrap:pretty}
   .footer-column h2{margin-bottom:18px}
   .footer-services>a{grid-template-columns:30px minmax(0,1fr);padding-block:9px}
   .footer-services>a>strong{font-size:.82rem}
+  .footer-column>a{min-height:44px}
   .footer-bottom{grid-template-columns:1fr;gap:14px;padding-block:22px 28px}
   .footer-bottom .site-credit,.footer-bottom nav{justify-self:start}
   .footer-bottom nav{grid-column:auto;grid-row:auto;order:2}
   .footer-meta{gap:8px 20px}
 }
+
+/* Final content polish: the hero closes on one quiet scroll cue. */
+.hero-foot{justify-content:flex-end}
+.hero-foot .scroll-cue{margin-left:0}
 
 @media(prefers-reduced-motion:reduce){
   .footer-column>a{transition:none}
@@ -1176,14 +1186,17 @@ p{text-wrap:pretty}
   .home-method-chapter .process>.shell,.service-uses-chapter>.shell,.service-signature-chapter>.shell,.service-process-chapter>.shell,.service-faq-chapter>.shell,.about-page .editorial-process.page-chapter>.shell{width:var(--shell)}
   .service-overview-chapter .service-intro,.service-overview-chapter .service-scope{height:auto;min-height:0;padding-block:var(--section-space-xl)}
 
-  .service-uses-chapter,.service-process-chapter,.service-faq-chapter{padding-block:var(--section-space-lg)}
+  .service-uses-chapter,.service-faq-chapter{padding-block:var(--section-space-lg)}
+  .service-process-chapter{padding-block:clamp(46px,5vw,64px)}
   .service-signature-chapter{padding-block:clamp(88px,8.5vw,128px)}
   .service-signature-chapter .service-focus-grid{min-height:0;align-content:start;align-items:center}
   .service-signature-chapter .service-focus-copy{display:block;align-self:center;padding-block:0}
   .service-signature-chapter .service-focus-copy>:last-child{margin-top:clamp(42px,4vw,64px)}
   .service-process-chapter>.shell{display:block;min-height:0}
-  .service-process-chapter .service-section-head{margin-bottom:clamp(40px,5vw,68px)}
+  .service-process-chapter .service-section-head{margin-bottom:clamp(26px,3vw,40px)}
+  .service-process-chapter .service-section-head h2{font-size:clamp(2.7rem,4.7vw,4rem)}
   .service-process-chapter .service-process-grid{margin-top:0}
+  .service-process-chapter .service-process-step{min-height:150px}
   .service-faq-chapter>.faq-layout{align-items:start}
 
   .service-final-chapter>.service-content-section,.about-final-chapter>.related-services{height:auto;min-height:0;padding-block:var(--section-space-md)}
