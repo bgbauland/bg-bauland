@@ -32,7 +32,7 @@
   <link rel="preload" as="image" href="./assets/images/hero-bg-bauland.webp" fetchpriority="high">
   <link rel="preload" href="./assets/fonts/inter-latin.woff2?v=1" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="./assets/fonts/roboto-condensed-latin.woff2?v=1" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="./styles.css?v=28">
+  <link rel="stylesheet" href="./styles.css?v=31">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -53,10 +53,10 @@
       "@type": "OfferCatalog",
       "name": "Leistungen",
       "itemListElement": [
-        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Erd- & Tiefbau" } },
-        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Beton- & Rohbau" } },
-        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Außenanlagen & Pflasterarbeiten" } },
-        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Weitere Bau- & Sanierungsarbeiten" } }
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Erd- & Tiefbau", "url": "https://bgbauland.github.io/bg-bauland/erd-tiefbau/" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Beton- & Rohbau", "url": "https://bgbauland.github.io/bg-bauland/beton-rohbau/" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Außenanlagen & Pflasterarbeiten", "url": "https://bgbauland.github.io/bg-bauland/aussenanlagen/" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Weitere Bau- & Sanierungsarbeiten", "url": "https://bgbauland.github.io/bg-bauland/bau-sanierungsarbeiten/" } }
       ]
     }
   }
@@ -126,6 +126,7 @@
         <p class="hero-lead">Erd- &amp; Tiefbau, Beton- &amp; Rohbau, Außenanlagen &amp; Pflasterarbeiten sowie weitere Bau- &amp; Sanierungsarbeiten.</p>
         <div class="hero-actions">
           <a class="button button-primary" href="#kontakt">Projekt besprechen <span class="arrow-icon arrow-up" aria-hidden="true"></span></a>
+          <a class="button button-secondary" href="#leistungen">Leistungen ansehen <span class="arrow-icon arrow-down" aria-hidden="true"></span></a>
         </div>
       </div>
       <div class="hero-foot shell" aria-hidden="true">
@@ -154,6 +155,7 @@
           <span class="loader-percent">0%</span>
         </div>
       </div>
+      <div class="cinematic-handoff" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
     </section>
 
     <section class="section services" id="leistungen" aria-labelledby="services-title">
@@ -174,26 +176,24 @@
       </div>
     </section>
 
-    <section class="project-strip" id="projekte" aria-label="Ausgewählte Leistungsbereiche">
-      <div class="shell project-grid">
-        <figure class="project-image reveal"><img src="./assets/images/service-erd-tiefbau.webp" width="1376" height="768" loading="lazy" decoding="async" fetchpriority="low" alt="Baugrube mit Bagger bei präzisen Erd- und Tiefbauarbeiten"><figcaption><span>Erd- &amp; Tiefbau</span><strong>Tragfähige Grundlagen</strong></figcaption></figure>
-        <figure class="project-image reveal"><img src="./assets/images/reinforcement.webp" width="1920" height="1080" loading="lazy" decoding="async" fetchpriority="low" alt="Vorbereitete Bewehrung für tragfähige Beton- und Rohbauarbeiten"><figcaption><span>Beton- &amp; Rohbau</span><strong>Massive Konstruktionen</strong></figcaption></figure>
-        <figure class="project-image reveal"><img src="./assets/images/service-pflasterarbeiten.webp" width="1376" height="768" loading="lazy" decoding="async" fetchpriority="low" alt="Präzise vorbereitete Pflasterfläche als Teil einer Außenanlage"><figcaption><span>Außenanlagen &amp; Pflasterarbeiten</span><strong>Exakte Außenflächen</strong></figcaption></figure>
-        <figure class="project-image reveal"><img src="./assets/images/service-abbrucharbeiten.webp" width="1376" height="768" loading="lazy" decoding="async" fetchpriority="low" alt="Vorbereitende Abbrucharbeit im Rahmen einer Sanierung"><figcaption><span>Weitere Bau- &amp; Sanierungsarbeiten</span><strong>Vielseitig umgesetzt</strong></figcaption></figure>
-      </div>
-      <p class="image-disclaimer shell"><span>Visualisierte Leistungsbereiche · keine Darstellung konkreter Kundenprojekte</span><a class="project-strip-link" href="./projekte/">Projekte ansehen <span class="arrow-icon arrow-right" aria-hidden="true"></span></a></p>
-    </section>
-
-    <section class="section details" aria-labelledby="details-title">
+    <section class="section project-strip project-teaser" id="projekte" aria-labelledby="projects-title">
       <div class="shell">
-        <p class="eyebrow eyebrow-dark reveal"><span></span> Im Detail</p>
-        <h2 id="details-title" class="reveal">Arbeit, die den<br><em>Unterschied macht.</em></h2>
-        <div class="detail-list">
-          <article class="detail-row reveal" id="erd-tiefbau"><span class="detail-no">01</span><div><h3>Erd- &amp; Tiefbau</h3><p>Präzise Erdbewegungen, Aushubarbeiten und Geländeanpassungen schaffen eine verlässliche Grundlage für die nächsten Bauabschnitte.</p></div><a class="detail-page-link" href="./erd-tiefbau/" aria-label="Mehr über Erd- und Tiefbau erfahren"><span class="detail-mark arrow-icon arrow-up" aria-hidden="true"></span></a></article>
-          <article class="detail-row reveal" id="beton-rohbau"><span class="detail-no">02</span><div><h3>Beton- &amp; Rohbau</h3><p>Fundamente, Bodenplatten und weitere massive Bauteile werden als tragfähige und langlebige Grundlage für das Bauvorhaben ausgeführt.</p></div><a class="detail-page-link" href="./beton-rohbau/" aria-label="Mehr über Beton- und Rohbau erfahren"><span class="detail-mark arrow-icon arrow-up" aria-hidden="true"></span></a></article>
-          <article class="detail-row reveal" id="aussenanlagen-pflaster"><span class="detail-no">03</span><div><h3>Außenanlagen &amp; Pflasterarbeiten</h3><p>Außenflächen, Wege und Zufahrten werden funktional gestaltet und mit fachgerechtem Unterbau präzise ausgeführt.</p></div><a class="detail-page-link" href="./aussenanlagen/" aria-label="Mehr über Außenanlagen und Pflasterarbeiten erfahren"><span class="detail-mark arrow-icon arrow-up" aria-hidden="true"></span></a></article>
-          <article class="detail-row reveal" id="bau-sanierung"><span class="detail-no">04</span><div><h3>Weitere Bau- &amp; Sanierungsarbeiten</h3><p>Abbruch, Entkernung, Trockenbau, Dämmung, Abdichtung und Reparaturen werden passend zum Gebäude und Vorhaben ausgeführt.</p></div><a class="detail-page-link" href="./bau-sanierungsarbeiten/" aria-label="Mehr über weitere Bau- und Sanierungsarbeiten erfahren"><span class="detail-mark arrow-icon arrow-up" aria-hidden="true"></span></a></article>
+        <div class="section-head project-teaser-head reveal">
+          <div>
+            <p class="eyebrow"><span></span> Projekte &amp; Einblicke</p>
+            <h2 id="projects-title">Arbeit wird<br><em>sichtbar.</em></h2>
+          </div>
+          <div class="project-teaser-copy">
+            <p>Entdecken Sie unsere Leistungsbereiche in Bildern und gewinnen Sie einen ersten Eindruck von Materialien, Abläufen und Ergebnissen.</p>
+            <a class="project-strip-link" href="./projekte/">Projekte ansehen <span class="arrow-icon arrow-right" aria-hidden="true"></span></a>
+          </div>
         </div>
+        <div class="project-teaser-grid">
+          <figure class="project-image project-image-featured reveal"><img src="./assets/images/service-erd-tiefbau.webp" width="1376" height="768" loading="lazy" decoding="async" fetchpriority="low" alt="Visualisierung einer Baugrube mit Bagger für Erd- und Tiefbau"><figcaption><span>Erd- &amp; Tiefbau</span><strong>Tragfähige Grundlagen</strong></figcaption></figure>
+          <figure class="project-image reveal"><img src="./assets/images/reinforcement.webp" width="1920" height="1080" loading="lazy" decoding="async" fetchpriority="low" alt="Visualisierung einer vorbereiteten Bewehrung für Beton- und Rohbau"><figcaption><span>Beton- &amp; Rohbau</span><strong>Massive Konstruktionen</strong></figcaption></figure>
+          <figure class="project-image reveal"><img src="./assets/images/service-pflasterarbeiten.webp" width="1376" height="768" loading="lazy" decoding="async" fetchpriority="low" alt="Visualisierung einer vorbereiteten Pflasterfläche im Außenbereich"><figcaption><span>Außenanlagen</span><strong>Exakte Flächen</strong></figcaption></figure>
+        </div>
+        <p class="image-disclaimer">Visualisierte Leistungsbereiche · keine Darstellung konkreter Kundenprojekte</p>
       </div>
     </section>
 
@@ -209,6 +209,7 @@
             <li><span>01</span>Klare Absprachen und verbindliche Ausführung.</li>
             <li><span>02</span>Effiziente und koordinierte Arbeitsabläufe.</li>
             <li><span>03</span>Transparente Preise und klar beschriebene Leistungen.</li>
+            <li class="experience-more"><a href="./ueber-uns/">Mehr über BG Bauland <span class="arrow-icon arrow-right" aria-hidden="true"></span></a></li>
           </ul>
         </div>
       </div>
@@ -220,12 +221,24 @@
           <div><p class="eyebrow eyebrow-dark"><span></span> Arbeitsweise</p><h2 id="process-title">Klarer Ablauf.<br><em>Klare Ergebnisse.</em></h2></div>
           <p>Direkte Kommunikation, nachvollziehbare Schritte und ein sauber übergebenes Ergebnis.</p>
         </div>
-        <ol class="process-list">
+        <ol class="process-list process-axis reveal">
           <li class="reveal"><img class="process-image" src="assets/images/process-anfrage.webp" alt="" loading="lazy" decoding="async" width="928" height="1152"><span>01</span><div><h3>Anfrage</h3><p>Sie schildern kurz, welche Arbeiten benötigt werden.</p></div></li>
           <li class="reveal"><img class="process-image" src="assets/images/process-abstimmung.webp" alt="" loading="lazy" decoding="async" width="928" height="1152"><span>02</span><div><h3>Abstimmung</h3><p>Umfang, Voraussetzungen und Ausführung werden gemeinsam besprochen.</p></div></li>
           <li class="reveal"><img class="process-image" src="assets/images/process-umsetzung.webp" alt="" loading="lazy" decoding="async" width="928" height="1152"><span>03</span><div><h3>Umsetzung</h3><p>Die vereinbarten Arbeiten werden koordiniert und zuverlässig durchgeführt.</p></div></li>
           <li class="reveal"><img class="process-image" src="assets/images/process-uebergabe.webp" alt="" loading="lazy" decoding="async" width="928" height="1152"><span>04</span><div><h3>Übergabe</h3><p>Das Ergebnis wird gemeinsam geprüft und sauber übergeben.</p></div></li>
         </ol>
+      </div>
+    </section>
+
+    <section class="trust-bar" aria-label="BG Bauland auf einen Blick">
+      <div class="shell">
+        <p class="eyebrow eyebrow-dark"><span></span> Auf einen Blick</p>
+        <ul>
+          <li><span>01</span><strong>Hockenheim</strong><small>Regional verankert</small></li>
+          <li><span>02</span><strong>Direkter Kontakt</strong><small>Persönlich abgestimmt</small></li>
+          <li><span>03</span><strong>20+ Jahre</strong><small>Berufserfahrung</small></li>
+          <li><span>04</span><strong>Vier Bereiche</strong><small>Vielseitige Leistungen</small></li>
+        </ul>
       </div>
     </section>
 
@@ -236,7 +249,7 @@
         <div class="contact-copy reveal">
           <p class="eyebrow"><span></span> Projektanfrage</p>
           <h2 id="contact-title">Sprechen wir über<br><em>Ihr Vorhaben.</em></h2>
-          <p>Beschreiben Sie uns kurz Ihr Projekt. Wir melden uns persönlich bei Ihnen.</p>
+          <p>Sie planen ein Bauvorhaben? Schildern Sie kurz, worum es geht. Wir melden uns persönlich bei Ihnen.</p>
           <div class="contact-direct">
             <a href="tel:+4917699304944"><small>Telefon</small><strong>+49 176 993 049 44</strong></a>
             <a href="mailto:info@bg-bauland.de"><small>E-Mail</small><strong>info@bg-bauland.de</strong></a>

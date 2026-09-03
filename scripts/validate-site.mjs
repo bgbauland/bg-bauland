@@ -32,14 +32,40 @@ for (const frame of expectedFrames) {
 
 const htmlFiles = siteFiles.filter((file) => extname(file) === '.html');
 const attributeReference = /\b(?:src|href|poster)=["']([^"']+)["']/g;
+const hrefReference = /\bhref=["']([^"']+)["']/g;
+const htmlIds = new Map(htmlFiles.map((file) => {
+  const content = readFileSync(file, 'utf8');
+  return [file, new Set(Array.from(content.matchAll(/\bid=["']([^"']+)["']/g), (match) => match[1]))];
+}));
+
+const resolveLocalTarget = (sourceFile, reference) => {
+  const pathPart = reference.split(/[?#]/)[0];
+  let target = pathPart ? resolve(dirname(sourceFile), pathPart) : sourceFile;
+  if (pathPart.endsWith('/')) target = join(target, 'index.html');
+  return target;
+};
+
 for (const file of htmlFiles) {
   const content = readFileSync(file, 'utf8');
   for (const [, rawReference] of content.matchAll(attributeReference)) {
     const reference = rawReference.split(/[?#]/)[0];
     if (!reference || /^(?:https?:|mailto:|tel:|#)/.test(reference)) continue;
-    let target = resolve(dirname(file), reference);
-    if (reference.endsWith('/')) target = join(target, 'index.html');
+    const target = resolveLocalTarget(file, rawReference);
     if (!existsSync(target)) noteFailure(`Fehlende lokale Referenz in ${relative(root, file)}: ${rawReference}`);
+  }
+
+  for (const [, rawHref] of content.matchAll(hrefReference)) {
+    if (/^(?:https?:|mailto:|tel:|javascript:)/.test(rawHref)) continue;
+    const hashIndex = rawHref.indexOf('#');
+    if (hashIndex < 0 || hashIndex === rawHref.length - 1) continue;
+    const target = resolveLocalTarget(file, rawHref);
+    if (!existsSync(target) || extname(target) !== '.html') continue;
+    let anchor;
+    try { anchor = decodeURIComponent(rawHref.slice(hashIndex + 1)); }
+    catch { noteFailure(`Ungültig codierter Anker in ${relative(root, file)}: ${rawHref}`); continue; }
+    if (!htmlIds.get(target)?.has(anchor)) {
+      noteFailure(`Fehlender Zielanker in ${relative(root, file)}: ${rawHref}`);
+    }
   }
 }
 
